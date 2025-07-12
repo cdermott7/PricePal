@@ -31,6 +31,7 @@ class ExampleMentraOSApp extends AppServer {
   private latestPhotoTimestamp: Map<string, number> = new Map(); // Track latest photo timestamp per user
   private isStreamingPhotos: Map<string, boolean> = new Map(); // Track if we are streaming photos for a user
   private nextPhotoTime: Map<string, number> = new Map(); // Track next photo time for a user
+  private wishlist: Map<string, any[]> = new Map(); // Store wishlist items by userId
   private geminiAI: GoogleGenerativeAI; // Gemini AI instance
 
   constructor() {
@@ -395,7 +396,97 @@ Analyze this product image and provide alternatives with current pricing.`;
       res.json({ analysis });
     });
 
-    // Main webview route - displays the photo viewer interface
+     // API endpoint to add current item to wishlist
+     app.post('/api/wishlist/add', (req: any, res: any) => {
+       const userId = (req as AuthenticatedRequest).authUserId;
+       console.log(`[API] Add to wishlist request for userId: ${userId}`);
+
+       if (!userId) {
+         console.log(`[API] Unauthenticated request to /api/wishlist/add`);
+         res.status(401).json({ error: 'Not authenticated' });
+         return;
+       }
+
+       const userPhotos = this.photos.get(userId);
+       if (!userPhotos || userPhotos.length === 0) {
+         console.log(`[API] No photos found for userId: ${userId} in wishlist add request`);
+         res.status(404).json({ error: 'No photo available' });
+         return;
+       }
+
+       const latestPhoto = userPhotos[userPhotos.length - 1];
+       const analysis = (latestPhoto as any).geminiAnalysis;
+       
+       if (!analysis) {
+         console.log(`[API] No analysis available for wishlist add, userId: ${userId}`);
+         res.status(404).json({ error: 'No analysis available yet' });
+         return;
+       }
+
+       // Get user's wishlist or create new one
+       const userWishlist = this.wishlist.get(userId) || [];
+       
+       // Create wishlist item
+       const wishlistItem = {
+         id: Date.now().toString(),
+         photoRequestId: latestPhoto.requestId,
+         timestamp: new Date().toISOString(),
+         analysis: analysis,
+         addedAt: new Date().toISOString()
+       };
+
+       userWishlist.push(wishlistItem);
+       this.wishlist.set(userId, userWishlist);
+       
+       console.log(`[API] Added item to wishlist for userId: ${userId}, itemId: ${wishlistItem.id}`);
+       res.json({ success: true, itemId: wishlistItem.id, message: 'Item added to wishlist' });
+     });
+
+     // API endpoint to get user's wishlist
+     app.get('/api/wishlist', (req: any, res: any) => {
+       const userId = (req as AuthenticatedRequest).authUserId;
+       console.log(`[API] Wishlist request for userId: ${userId}`);
+
+       if (!userId) {
+         console.log(`[API] Unauthenticated request to /api/wishlist`);
+         res.status(401).json({ error: 'Not authenticated' });
+         return;
+       }
+
+       const userWishlist = this.wishlist.get(userId) || [];
+       console.log(`[API] Returning wishlist for userId: ${userId}, items: ${userWishlist.length}`);
+       res.json({ wishlist: userWishlist });
+     });
+
+     // API endpoint to remove item from wishlist
+     app.delete('/api/wishlist/:itemId', (req: any, res: any) => {
+       const userId = (req as AuthenticatedRequest).authUserId;
+       const itemId = req.params.itemId;
+       console.log(`[API] Remove from wishlist request for userId: ${userId}, itemId: ${itemId}`);
+
+       if (!userId) {
+         console.log(`[API] Unauthenticated request to /api/wishlist/remove`);
+         res.status(401).json({ error: 'Not authenticated' });
+         return;
+       }
+
+       const userWishlist = this.wishlist.get(userId) || [];
+       const itemIndex = userWishlist.findIndex(item => item.id === itemId);
+       
+       if (itemIndex === -1) {
+         console.log(`[API] Item not found in wishlist, userId: ${userId}, itemId: ${itemId}`);
+         res.status(404).json({ error: 'Item not found in wishlist' });
+         return;
+       }
+
+       userWishlist.splice(itemIndex, 1);
+       this.wishlist.set(userId, userWishlist);
+       
+       console.log(`[API] Removed item from wishlist for userId: ${userId}, itemId: ${itemId}`);
+       res.json({ success: true, message: 'Item removed from wishlist' });
+     });
+
+     // Main webview route - displays the photo viewer interface
     app.get('/webview', async (req: any, res: any) => {
       const userId = (req as AuthenticatedRequest).authUserId;
 

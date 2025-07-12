@@ -774,6 +774,161 @@
         padding: 24px;
       }
     }
+
+    /* Wishlist Styles */
+    .wishlist-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 1000;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .wishlist-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .wishlist-button:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .wishlist-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 2000;
+      backdrop-filter: blur(5px);
+    }
+
+    .wishlist-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 90%;
+      max-height: 90%;
+      overflow-y: auto;
+      color: black;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .wishlist-content h2 {
+      margin-bottom: 20px;
+      color: #2c3e50;
+      font-size: 1.8em;
+    }
+
+    .wishlist-item {
+      border: 1px solid #e9ecef;
+      margin: 15px 0;
+      padding: 20px;
+      border-radius: 15px;
+      background: #f8f9fa;
+      transition: all 0.3s ease;
+    }
+
+    .wishlist-item:hover {
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .wishlist-item h3 {
+      margin: 0 0 10px 0;
+      color: #2c3e50;
+      font-size: 1.2em;
+    }
+
+    .wishlist-item .timestamp {
+      color: #6c757d;
+      font-size: 12px;
+      margin-bottom: 15px;
+    }
+
+    .wishlist-item .analysis {
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #495057;
+    }
+
+    .remove-button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 20px;
+      cursor: pointer;
+      float: right;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .remove-button:hover {
+      background: #c82333;
+      transform: scale(1.05);
+    }
+
+    .close-button {
+      background: linear-gradient(135deg, #6c757d, #495057);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 25px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .close-button:hover {
+      background: linear-gradient(135deg, #495057, #343a40);
+      transform: translateY(-2px);
+    }
+
+    .add-to-wishlist-btn {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .add-to-wishlist-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .add-to-wishlist-btn:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+      transform: none;
+    }
   </style>
 </head>
 <body>
@@ -805,6 +960,22 @@
     </div>
   </nav>
 
+  <!-- Wishlist Button -->
+  <button id="wishlist-btn" class="wishlist-button" onclick="toggleWishlist()" style="display: none;">
+    📋 Wishlist
+  </button>
+
+  <!-- Wishlist Modal -->
+  <div id="wishlist-modal" class="wishlist-modal">
+    <div class="wishlist-content">
+      <h2>📋 My Wishlist</h2>
+      <div id="wishlist-items">
+        <!-- Wishlist items will be loaded here -->
+      </div>
+      <button class="close-button" onclick="toggleWishlist()">Close</button>
+    </div>
+  </div>
+
   <div class="main-container">
     <div class="sidebar">
       <div class="panel glass-elevated">
@@ -824,6 +995,10 @@
               <div class="empty-title">No Photos</div>
               <div class="empty-subtitle">Take photos with your Mentra glasses to begin intelligent price analysis</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
           </div>
         </div>
       </div>
@@ -1208,6 +1383,17 @@
          document.getElementById('recommendation-section').style.display = 'none';
        }
        
+       // Add wishlist button to the analysis section
+       const existingButton = analysisSection.querySelector('.add-to-wishlist-btn');
+       if (!existingButton) {
+         const wishlistButton = document.createElement('button');
+         wishlistButton.id = 'add-to-wishlist-btn';
+         wishlistButton.className = 'add-to-wishlist-btn';
+         wishlistButton.onclick = addToWishlist;
+         wishlistButton.textContent = '💾 Add to Wishlist';
+         analysisSection.appendChild(wishlistButton);
+       }
+       
        // Update global status
        const globalStatus = document.getElementById('global-status');
        globalStatus.className = 'status-pill ready';
@@ -1336,6 +1522,128 @@
     initializeTheme();
     checkForPhotos();
     setInterval(checkForPhotos, 1000);
+
+    // Wishlist functionality
+    let currentWishlist = [];
+
+    async function addToWishlist() {
+      const button = document.getElementById('add-to-wishlist-btn');
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Adding...';
+      }
+
+      try {
+        const response = await fetch('/api/wishlist/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add to wishlist');
+        }
+
+        const result = await response.json();
+        alert('✅ Item added to wishlist!');
+        
+        // Refresh wishlist
+        loadWishlist();
+        
+      } catch (error) {
+        console.error('Error adding to wishlist:', error);
+        alert('❌ Failed to add to wishlist. Please try again.');
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = '💾 Add to Wishlist';
+        }
+      }
+    }
+
+    async function loadWishlist() {
+      try {
+        const response = await fetch('/api/wishlist');
+        
+        if (!response.ok) {
+          throw new Error('Failed to load wishlist');
+        }
+
+        const data = await response.json();
+        currentWishlist = data.wishlist || [];
+        displayWishlist();
+        
+        // Show/hide wishlist button based on whether user has items
+        const wishlistBtn = document.getElementById('wishlist-btn');
+        if (wishlistBtn) {
+          wishlistBtn.style.display = currentWishlist.length > 0 ? 'block' : 'none';
+        }
+        
+      } catch (error) {
+        console.error('Error loading wishlist:', error);
+      }
+    }
+
+    function displayWishlist() {
+      const container = document.getElementById('wishlist-items');
+      
+      if (currentWishlist.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #6c757d;">
+            <div style="font-size: 3em; margin-bottom: 20px;">📋</div>
+            <h3>Your wishlist is empty</h3>
+            <p>Add items to your wishlist to save them for later!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentWishlist.map(item => `
+        <div class="wishlist-item">
+          <button class="remove-button" onclick="removeFromWishlist('${item.id}')">🗑️ Remove</button>
+          <h3>📸 Photo Analysis</h3>
+          <div class="timestamp">Added: ${new Date(item.addedAt).toLocaleString()}</div>
+          <div class="analysis">${item.analysis}</div>
+        </div>
+      `).join('');
+    }
+
+    async function removeFromWishlist(itemId) {
+      if (!confirm('Are you sure you want to remove this item from your wishlist?')) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/wishlist/${itemId}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to remove from wishlist');
+        }
+
+        // Refresh wishlist
+        loadWishlist();
+        
+      } catch (error) {
+        console.error('Error removing from wishlist:', error);
+        alert('❌ Failed to remove from wishlist. Please try again.');
+      }
+    }
+
+    function toggleWishlist() {
+      const modal = document.getElementById('wishlist-modal');
+      if (modal.style.display === 'block') {
+        modal.style.display = 'none';
+      } else {
+        modal.style.display = 'block';
+        loadWishlist();
+      }
+    }
+
+    // Load wishlist on page load
+    loadWishlist();
   </script>
 </body>
 </html>
