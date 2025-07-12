@@ -302,9 +302,16 @@ Analyze this product image and provide alternatives with current pricing.`;
       const session = this.sessions.get(userId);
       if (session) {
         console.log(`[TTS] Playing audio immediately for user ${userId}`);
+        console.log(`[TTS] Audio URL: ${audioUrl}`);
         try {
-          await session.audio.playAudio({ audioUrl: audioUrl });
-          console.log(`[TTS] Audio played successfully for user ${userId}`);
+          const playResult = await session.audio.playAudio({ audioUrl: audioUrl });
+          console.log(`[TTS] Audio play result for user ${userId}:`, playResult);
+          
+          if (playResult && playResult.success) {
+            console.log(`[TTS] Audio played successfully for user ${userId}`);
+          } else {
+            console.error(`[TTS] Audio play failed for user ${userId}:`, playResult);
+          }
         } catch (error) {
           console.error(`[TTS] Error playing audio for user ${userId}:`, error);
         }
@@ -339,9 +346,22 @@ Analyze this product image and provide alternatives with current pricing.`;
     // Serve audio files
     app.use('/audio', (req, res, next) => {
       const filePath = path.join(process.cwd(), 'audio', req.path);
+      
+      // Set proper headers for audio files
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'no-cache',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, HEAD',
+        'Access-Control-Allow-Headers': 'Range'
+      });
+      
       res.sendFile(filePath, (err) => {
         if (err) {
+          console.error(`[AUDIO] Error serving audio file ${req.path}:`, err);
           res.status(404).send('Audio file not found');
+        } else {
+          console.log(`[AUDIO] Successfully served audio file: ${req.path}`);
         }
       });
     });
@@ -556,14 +576,26 @@ Analyze this product image and provide alternatives with current pricing.`;
 
       try {
         // Play a test audio file
-        await session.audio.playAudio({ audioUrl: "https://okgodoit.com/cool.mp3" });
-        res.json({ 
-          success: true, 
-          message: 'Test audio played successfully'
-        });
+        console.log(`[API] Attempting to play test audio for userId: ${userId}`);
+        const playResult = await session.audio.playAudio({ audioUrl: "https://okgodoit.com/cool.mp3" });
+        console.log(`[API] Test audio play result for userId: ${userId}:`, playResult);
+        
+        if (playResult && playResult.success) {
+          res.json({ 
+            success: true, 
+            message: 'Test audio played successfully',
+            result: playResult
+          });
+        } else {
+          res.json({ 
+            success: false, 
+            message: 'Test audio play failed',
+            result: playResult
+          });
+        }
       } catch (error) {
         console.error(`[API] Error playing test audio for userId: ${userId}:`, error);
-        res.status(500).json({ error: 'Failed to play test audio' });
+        res.status(500).json({ error: 'Failed to play test audio', details: error.message });
       }
     });
 
