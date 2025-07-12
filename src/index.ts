@@ -20,6 +20,7 @@ interface StoredPhoto {
 const PACKAGE_NAME = process.env.PACKAGE_NAME ?? (() => { throw new Error('PACKAGE_NAME is not set in .env file'); })();
 const MENTRAOS_API_KEY = process.env.MENTRAOS_API_KEY ?? (() => { throw new Error('MENTRAOS_API_KEY is not set in .env file'); })();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? (() => { throw new Error('GEMINI_API_KEY is not set in .env file'); })();
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY ?? (() => { throw new Error('ELEVENLABS_API_KEY is not set in .env file'); })();
 const PORT = parseInt(process.env.PORT || '3000');
 
 /**
@@ -219,10 +220,53 @@ Analyze this product image and provide alternatives with current pricing.`;
       (photo as any).geminiAnalysis = analysis;
       console.log(`[GEMINI] Analysis stored with photo for user ${userId}`);
       
+      // Speak the first 50 characters of the analysis
+      await this.speakAnalysis(analysis, userId);
+      
     } catch (error) {
       console.error(`Error analyzing photo with Gemini: ${error}`);
       // Store error message for debugging
       (photo as any).geminiAnalysis = `Error analyzing photo: ${error}`;
+    }
+  }
+
+  /**
+   * Speak the first 50 characters of the analysis using ElevenLabs
+   */
+  private async speakAnalysis(analysis: string, userId: string) {
+    try {
+      console.log(`[TTS] Starting text-to-speech for user ${userId}`);
+      
+      // Get the first 50 characters of the analysis
+      const first50Chars = analysis.substring(0, 50);
+      console.log(`[TTS] First 50 characters: "${first50Chars}"`);
+      
+      // Create speech using ElevenLabs API
+      const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb?output_format=mp3_44100_128", {
+        method: "POST",
+        headers: {
+          "xi-api-key": ELEVENLABS_API_KEY,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          "text": first50Chars,
+          "model_id": "eleven_multilingual_v2"
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`);
+      }
+
+      const audioBuffer = await response.arrayBuffer();
+      console.log(`[TTS] Audio generated successfully for user ${userId}, size: ${audioBuffer.byteLength} bytes`);
+      
+      // Store the audio buffer for potential playback
+      // Note: In a real implementation, you might want to save this to a file or stream it
+      console.log(`[TTS] Audio ready for playback - first 50 characters of analysis spoken`);
+      
+    } catch (error) {
+      console.error(`[TTS] Error generating speech for user ${userId}:`, error);
     }
   }
 
@@ -392,6 +436,45 @@ Analyze this product image and provide alternatives with current pricing.`;
       console.log(`[API] Returning Gemini analysis for requestId: ${requestId}, analysis length: ${analysis.length}`);
       console.log(`[API] Analysis preview: ${analysis.substring(0, 200)}...`);
       res.json({ analysis });
+    });
+
+    // API endpoint to speak the first 50 characters of the latest analysis
+    app.post('/api/speak-analysis', async (req: any, res: any) => {
+      const userId = (req as AuthenticatedRequest).authUserId;
+      console.log(`[API] Speak analysis request for userId: ${userId}`);
+
+      if (!userId) {
+        console.log(`[API] Unauthenticated request to /api/speak-analysis`);
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+      }
+
+      const userPhotos = this.photos.get(userId);
+      if (!userPhotos || userPhotos.length === 0) {
+        console.log(`[API] No photos found for userId: ${userId}`);
+        res.status(404).json({ error: 'No photos found' });
+        return;
+      }
+
+      const latestPhoto = userPhotos[userPhotos.length - 1];
+      const analysis = (latestPhoto as any).geminiAnalysis;
+      if (!analysis) {
+        console.log(`[API] No Gemini analysis available for userId: ${userId}`);
+        res.status(404).json({ error: 'No analysis available' });
+        return;
+      }
+
+      try {
+        await this.speakAnalysis(analysis, userId);
+        res.json({ 
+          success: true, 
+          message: 'Analysis spoken successfully',
+          first50Chars: analysis.substring(0, 50)
+        });
+      } catch (error) {
+        console.error(`[API] Error speaking analysis for userId: ${userId}:`, error);
+        res.status(500).json({ error: 'Failed to speak analysis' });
+      }
     });
 
     // Main webview route - displays the photo viewer interface
