@@ -2,8 +2,7 @@ import { AppServer, AppSession, ViewType, AuthenticatedRequest, PhotoData } from
 import { Request, Response } from 'express';
 import * as ejs from 'ejs';
 import * as path from 'path';
-import { GoogleGenAI } from '@google/genai';
-import * as mime from 'mime';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 /**
  * Interface representing a stored photo with metadata
@@ -32,7 +31,7 @@ class ExampleMentraOSApp extends AppServer {
   private latestPhotoTimestamp: Map<string, number> = new Map(); // Track latest photo timestamp per user
   private isStreamingPhotos: Map<string, boolean> = new Map(); // Track if we are streaming photos for a user
   private nextPhotoTime: Map<string, number> = new Map(); // Track next photo time for a user
-  private geminiAI: GoogleGenAI; // Gemini AI instance
+  private geminiAI: GoogleGenerativeAI; // Gemini AI instance
 
   constructor() {
     super({
@@ -40,8 +39,9 @@ class ExampleMentraOSApp extends AppServer {
       apiKey: MENTRAOS_API_KEY,
       port: PORT,
     });
-    this.geminiAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+    this.geminiAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     this.setupWebviewRoutes();
+    console.log(`[INIT] Webview routes setup complete`);
   }
 
 
@@ -50,45 +50,68 @@ class ExampleMentraOSApp extends AppServer {
    */
   protected async onSession(session: AppSession, sessionId: string, userId: string): Promise<void> {
     // this gets called whenever a user launches the app
-    this.logger.info(`Session started for user ${userId}`);
+    console.log(`[SESSION] Session started for user ${userId}, sessionId: ${sessionId}`);
 
     // set the initial state of the user
     this.isStreamingPhotos.set(userId, false);
     this.nextPhotoTime.set(userId, Date.now());
+    console.log(`[SESSION] Initialized user state for ${userId}`);
 
     // this gets called whenever a user presses a button
     session.events.onButtonPress(async (button) => {
-      this.logger.info(`Button pressed: ${button.buttonId}, type: ${button.pressType}`);
+      console.log(`[BUTTON] Button pressed: ${button.buttonId}, type: ${button.pressType} for user ${userId}`);
 
       if (button.pressType === 'long') {
         // the user held the button, so we toggle the streaming mode
-        this.isStreamingPhotos.set(userId, !this.isStreamingPhotos.get(userId));
-        this.logger.info(`Streaming photos for user ${userId} is now ${this.isStreamingPhotos.get(userId)}`);
+        const currentStreaming = this.isStreamingPhotos.get(userId);
+        this.isStreamingPhotos.set(userId, !currentStreaming);
+        console.log(`[BUTTON] Streaming photos for user ${userId} toggled from ${currentStreaming} to ${!currentStreaming}`);
         return;
       } else {
+        console.log(`[BUTTON] Single photo request initiated for user ${userId}`);
         session.layouts.showTextWall("Button pressed, about to take photo", {durationMs: 4000});
         // the user pressed the button, so we take a single photo
         try {
+          console.log(`[CAMERA] Requesting photo from camera for user ${userId}`);
           // first, get the photo
           const photo = await session.camera.requestPhoto();
-          // if there was an error, log it
-          this.logger.info(`Photo taken for user ${userId}, timestamp: ${photo.timestamp}`);
+          console.log(`[CAMERA] Photo received for user ${userId}:`, {
+            requestId: photo.requestId,
+            timestamp: photo.timestamp,
+            mimeType: photo.mimeType,
+            size: photo.size,
+            bufferLength: photo.buffer.length
+          });
           this.cachePhoto(photo, userId);
         } catch (error) {
-          this.logger.error(`Error taking photo: ${error}`);
+          console.error(`[CAMERA] Error taking photo for user ${userId}:`, error);
         }
       }
     });
 
     // repeatedly check if we are in streaming mode and if we are ready to take another photo
     setInterval(async () => {
-      if (this.isStreamingPhotos.get(userId) && Date.now() > (this.nextPhotoTime.get(userId) ?? 0)) {
+      const isStreaming = this.isStreamingPhotos.get(userId);
+      const nextPhotoTime = this.nextPhotoTime.get(userId) ?? 0;
+      const currentTime = Date.now();
+      
+      if (isStreaming && currentTime > nextPhotoTime) {
+        console.log(`[STREAM] Auto-taking photo for user ${userId} (streaming: ${isStreaming}, nextTime: ${nextPhotoTime}, currentTime: ${currentTime})`);
         try {
           // set the next photos for 30 seconds from now, as a fallback if this fails
-          this.nextPhotoTime.set(userId, Date.now() + 30000);
+          this.nextPhotoTime.set(userId, currentTime + 30000);
+          console.log(`[STREAM] Set next photo time to ${currentTime + 30000} for user ${userId}`);
 
           // actually take the photo
+          console.log(`[STREAM] Requesting auto photo from camera for user ${userId}`);
           const photo = await session.camera.requestPhoto();
+          console.log(`[STREAM] Auto photo received for user ${userId}:`, {
+            requestId: photo.requestId,
+            timestamp: photo.timestamp,
+            mimeType: photo.mimeType,
+            size: photo.size,
+            bufferLength: photo.buffer.length
+          });
 
           // set the next photo time to now, since we are ready to take another photo
           this.nextPhotoTime.set(userId, Date.now());
@@ -96,7 +119,7 @@ class ExampleMentraOSApp extends AppServer {
           // cache the photo for display
           this.cachePhoto(photo, userId);
         } catch (error) {
-          this.logger.error(`Error auto-taking photo: ${error}`);
+          console.error(`[STREAM] Error auto-taking photo for user ${userId}:`, error);
         }
       }
     }, 1000);
@@ -106,13 +129,15 @@ class ExampleMentraOSApp extends AppServer {
     // clean up the user's state
     this.isStreamingPhotos.set(userId, false);
     this.nextPhotoTime.delete(userId);
-    this.logger.info(`Session stopped for user ${userId}, reason: ${reason}`);
+    console.log(`[SESSION] Session stopped for user ${userId}, sessionId: ${sessionId}, reason: ${reason}`);
   }
 
   /**
    * Cache a photo for display
    */
   private async cachePhoto(photo: PhotoData, userId: string) {
+    console.log(`[CACHE] Starting to cache photo for user ${userId}, requestId: ${photo.requestId}`);
+    
     // create a new stored photo object which includes the photo data and the user id
     const cachedPhoto: StoredPhoto = {
       requestId: photo.requestId,
@@ -124,6 +149,14 @@ class ExampleMentraOSApp extends AppServer {
       size: photo.size
     };
 
+    console.log(`[CACHE] Created cached photo object for user ${userId}:`, {
+      requestId: cachedPhoto.requestId,
+      timestamp: cachedPhoto.timestamp,
+      mimeType: cachedPhoto.mimeType,
+      size: cachedPhoto.size,
+      bufferLength: cachedPhoto.buffer.length
+    });
+
     // this example app simply stores the photo in memory for display in the webview, but you could also send the photo to an AI api,
     // or store it in a database or cloud storage, send it to roboflow, or do other processing here
 
@@ -131,9 +164,10 @@ class ExampleMentraOSApp extends AppServer {
     this.photos.set(userId, cachedPhoto);
     // update the latest photo timestamp
     this.latestPhotoTimestamp.set(userId, cachedPhoto.timestamp.getTime());
-    this.logger.info(`Photo cached for user ${userId}, timestamp: ${cachedPhoto.timestamp}`);
+    console.log(`[CACHE] Photo cached for user ${userId}, timestamp: ${cachedPhoto.timestamp}, total photos in cache: ${this.photos.size}`);
     
     // Analyze the photo with Gemini
+    console.log(`[CACHE] Initiating Gemini analysis for user ${userId}`);
     this.analyzePhotoWithGemini(cachedPhoto, userId);
   }
 
@@ -141,23 +175,16 @@ class ExampleMentraOSApp extends AppServer {
    * Analyze a photo with Gemini AI
    */
   private async analyzePhotoWithGemini(photo: StoredPhoto, userId: string) {
+    console.log(`[GEMINI] Starting analysis for user ${userId}, requestId: ${photo.requestId}`);
     try {
-      const model = 'gemini-2.0-flash';
+      // Get the generative model
+      const model = this.geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      
+      // Convert buffer to base64
       const base64Image = photo.buffer.toString('base64');
       
-      const tools = [
-        { urlContext: {} },
-        {
-          googleSearch: {}
-        },
-      ];
-      
-      const config = {
-        tools,
-        responseMimeType: 'text/plain',
-        systemInstruction: [
-          {
-            text: `You will be provided an image of a product.
+      // Create the prompt
+      const prompt = `You will be provided an image of a product.
 
 1. Give me 3 alternatives to this product and their prices in JSON format with:
 Product Name
@@ -166,40 +193,32 @@ Product Price
 
 Only include products with all fields populated.
 
-2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.`,
-          }
-        ],
-      };
-      
-      const response = await this.geminiAI.models.generateContent({
-        model,
-        config,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                inlineData: {
-                  data: base64Image,
-                  mimeType: photo.mimeType,
-                },
-              },
-              {
-                text: `Analyze this product image and provide alternatives with current pricing.`,
-              },
-            ],
-          },
-        ],
-      });
+2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.
 
-      const analysis = response.text;
+Analyze this product image and provide alternatives with current pricing.`;
+
+      // Create the content for the API call
+      const imagePart = {
+        inlineData: {
+          data: base64Image,
+          mimeType: photo.mimeType,
+        },
+      };
+
+      const result = await model.generateContent([prompt, imagePart]);
+      const response = await result.response;
+      const analysis = response.text();
+      
       console.log(`Gemini analysis for user ${userId}:`, analysis);
       
       // Store the analysis with the photo for later retrieval
       (photo as any).geminiAnalysis = analysis;
+      console.log(`[GEMINI] Analysis stored with photo for user ${userId}`);
       
     } catch (error) {
       console.error(`Error analyzing photo with Gemini: ${error}`);
+      // Store error message for debugging
+      (photo as any).geminiAnalysis = `Error analyzing photo: ${error}`;
     }
   }
 
@@ -213,18 +232,22 @@ Only include products with all fields populated.
     // API endpoint to get the latest photo for the authenticated user
     app.get('/api/latest-photo', (req: any, res: any) => {
       const userId = (req as AuthenticatedRequest).authUserId;
+      console.log(`[API] Latest photo request for userId: ${userId}`);
 
       if (!userId) {
+        console.log(`[API] Unauthenticated request to /api/latest-photo`);
         res.status(401).json({ error: 'Not authenticated' });
         return;
       }
 
       const photo = this.photos.get(userId);
       if (!photo) {
+        console.log(`[API] No photo found for userId: ${userId}`);
         res.status(404).json({ error: 'No photo available' });
         return;
       }
 
+      console.log(`[API] Returning latest photo for userId: ${userId}, requestId: ${photo.requestId}`);
       res.json({
         requestId: photo.requestId,
         timestamp: photo.timestamp.getTime(),
@@ -258,24 +281,29 @@ Only include products with all fields populated.
     // API endpoint to get Gemini analysis for the latest photo
     app.get('/api/gemini-analysis', (req: any, res: any) => {
       const userId = (req as AuthenticatedRequest).authUserId;
+      console.log(`[API] Gemini analysis request for userId: ${userId}`);
 
       if (!userId) {
+        console.log(`[API] Unauthenticated request to /api/gemini-analysis`);
         res.status(401).json({ error: 'Not authenticated' });
         return;
       }
 
       const photo = this.photos.get(userId);
       if (!photo) {
+        console.log(`[API] No photo found for userId: ${userId} in gemini-analysis request`);
         res.status(404).json({ error: 'No photo available' });
         return;
       }
 
       const analysis = (photo as any).geminiAnalysis;
       if (!analysis) {
+        console.log(`[API] No Gemini analysis available for userId: ${userId}, requestId: ${photo.requestId}`);
         res.status(404).json({ error: 'No Gemini analysis available yet' });
         return;
       }
 
+      console.log(`[API] Returning Gemini analysis for userId: ${userId}, analysis length: ${analysis.length}`);
       res.json({ analysis });
     });
 
