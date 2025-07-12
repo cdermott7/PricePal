@@ -2,8 +2,7 @@ import { AppServer, AppSession, ViewType, AuthenticatedRequest, PhotoData } from
 import { Request, Response } from 'express';
 import * as ejs from 'ejs';
 import * as path from 'path';
-import { GoogleGenAI } from '@google/genai';
-import * as mime from 'mime';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 /**
  * Interface representing a stored photo with metadata
@@ -32,7 +31,7 @@ class ExampleMentraOSApp extends AppServer {
   private latestPhotoTimestamp: Map<string, number> = new Map(); // Track latest photo timestamp per user
   private isStreamingPhotos: Map<string, boolean> = new Map(); // Track if we are streaming photos for a user
   private nextPhotoTime: Map<string, number> = new Map(); // Track next photo time for a user
-  private geminiAI: GoogleGenAI; // Gemini AI instance
+  private geminiAI: GoogleGenerativeAI; // Gemini AI instance
 
   constructor() {
     super({
@@ -40,7 +39,7 @@ class ExampleMentraOSApp extends AppServer {
       apiKey: MENTRAOS_API_KEY,
       port: PORT,
     });
-    this.geminiAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+    this.geminiAI = new GoogleGenerativeAI(GEMINI_API_KEY);
     this.setupWebviewRoutes();
   }
 
@@ -142,22 +141,14 @@ class ExampleMentraOSApp extends AppServer {
    */
   private async analyzePhotoWithGemini(photo: StoredPhoto, userId: string) {
     try {
-      const model = 'gemini-2.0-flash';
+      // Get the generative model
+      const model = this.geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      
+      // Convert buffer to base64
       const base64Image = photo.buffer.toString('base64');
       
-      const tools = [
-        { urlContext: {} },
-        {
-          googleSearch: {}
-        },
-      ];
-      
-      const config = {
-        tools,
-        responseMimeType: 'text/plain',
-        systemInstruction: [
-          {
-            text: `You will be provided an image of a product.
+      // Create the prompt
+      const prompt = `You will be provided an image of a product.
 
 1. Give me 3 alternatives to this product and their prices in JSON format with:
 Product Name
@@ -166,33 +157,22 @@ Product Price
 
 Only include products with all fields populated.
 
-2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.`,
-          }
-        ],
-      };
-      
-      const response = await this.geminiAI.models.generateContent({
-        model,
-        config,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                inlineData: {
-                  data: base64Image,
-                  mimeType: photo.mimeType,
-                },
-              },
-              {
-                text: `Analyze this product image and provide alternatives with current pricing.`,
-              },
-            ],
-          },
-        ],
-      });
+2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.
 
-      const analysis = response.text;
+Analyze this product image and provide alternatives with current pricing.`;
+
+      // Create the content for the API call
+      const imagePart = {
+        inlineData: {
+          data: base64Image,
+          mimeType: photo.mimeType,
+        },
+      };
+
+      const result = await model.generateContent([prompt, imagePart]);
+      const response = await result.response;
+      const analysis = response.text();
+      
       console.log(`Gemini analysis for user ${userId}:`, analysis);
       
       // Store the analysis with the photo for later retrieval
@@ -200,6 +180,8 @@ Only include products with all fields populated.
       
     } catch (error) {
       console.error(`Error analyzing photo with Gemini: ${error}`);
+      // Store error message for debugging
+      (photo as any).geminiAnalysis = `Error analyzing photo: ${error}`;
     }
   }
 
