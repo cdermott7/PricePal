@@ -2,6 +2,8 @@ import { AppServer, AppSession, ViewType, AuthenticatedRequest, PhotoData } from
 import { Request, Response } from 'express';
 import * as ejs from 'ejs';
 import * as path from 'path';
+import { GoogleGenAI } from '@google/genai';
+import * as mime from 'mime';
 
 /**
  * Interface representing a stored photo with metadata
@@ -18,6 +20,7 @@ interface StoredPhoto {
 
 const PACKAGE_NAME = process.env.PACKAGE_NAME ?? (() => { throw new Error('PACKAGE_NAME is not set in .env file'); })();
 const MENTRAOS_API_KEY = process.env.MENTRAOS_API_KEY ?? (() => { throw new Error('MENTRAOS_API_KEY is not set in .env file'); })();
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? (() => { throw new Error('GEMINI_API_KEY is not set in .env file'); })();
 const PORT = parseInt(process.env.PORT || '3000');
 
 /**
@@ -29,6 +32,7 @@ class ExampleMentraOSApp extends AppServer {
   private latestPhotoTimestamp: Map<string, number> = new Map(); // Track latest photo timestamp per user
   private isStreamingPhotos: Map<string, boolean> = new Map(); // Track if we are streaming photos for a user
   private nextPhotoTime: Map<string, number> = new Map(); // Track next photo time for a user
+  private geminiAI: GoogleGenAI; // Gemini AI instance
 
   constructor() {
     super({
@@ -36,6 +40,7 @@ class ExampleMentraOSApp extends AppServer {
       apiKey: MENTRAOS_API_KEY,
       port: PORT,
     });
+    this.geminiAI = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
     this.setupWebviewRoutes();
   }
 
@@ -127,6 +132,75 @@ class ExampleMentraOSApp extends AppServer {
     // update the latest photo timestamp
     this.latestPhotoTimestamp.set(userId, cachedPhoto.timestamp.getTime());
     this.logger.info(`Photo cached for user ${userId}, timestamp: ${cachedPhoto.timestamp}`);
+    
+    // Analyze the photo with Gemini
+    this.analyzePhotoWithGemini(cachedPhoto, userId);
+  }
+
+  /**
+   * Analyze a photo with Gemini AI
+   */
+  private async analyzePhotoWithGemini(photo: StoredPhoto, userId: string) {
+    try {
+      const model = 'gemini-2.0-flash';
+      const base64Image = photo.buffer.toString('base64');
+      
+      const tools = [
+        { urlContext: {} },
+        {
+          googleSearch: {}
+        },
+      ];
+      
+      const config = {
+        tools,
+        responseMimeType: 'text/plain',
+        systemInstruction: [
+          {
+            text: `You will be provided an image of a product.
+
+1. Give me 3 alternatives to this product and their prices in JSON format with:
+Product Name
+Product Store
+Product Price
+
+Only include products with all fields populated.
+
+2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.`,
+          }
+        ],
+      };
+      
+      const response = await this.geminiAI.models.generateContent({
+        model,
+        config,
+        contents: [
+          {
+            role: 'user',
+            parts: [
+              {
+                inlineData: {
+                  data: base64Image,
+                  mimeType: photo.mimeType,
+                },
+              },
+              {
+                text: `Analyze this product image and provide alternatives with current pricing.`,
+              },
+            ],
+          },
+        ],
+      });
+
+      const analysis = response.text;
+      console.log(`Gemini analysis for user ${userId}:`, analysis);
+      
+      // Store the analysis with the photo for later retrieval
+      (photo as any).geminiAnalysis = analysis;
+      
+    } catch (error) {
+      console.error(`Error analyzing photo with Gemini: ${error}`);
+    }
   }
 
 
@@ -179,6 +253,30 @@ class ExampleMentraOSApp extends AppServer {
         'Cache-Control': 'no-cache'
       });
       res.send(photo.buffer);
+    });
+
+    // API endpoint to get Gemini analysis for the latest photo
+    app.get('/api/gemini-analysis', (req: any, res: any) => {
+      const userId = (req as AuthenticatedRequest).authUserId;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+      }
+
+      const photo = this.photos.get(userId);
+      if (!photo) {
+        res.status(404).json({ error: 'No photo available' });
+        return;
+      }
+
+      const analysis = (photo as any).geminiAnalysis;
+      if (!analysis) {
+        res.status(404).json({ error: 'No Gemini analysis available yet' });
+        return;
+      }
+
+      res.json({ analysis });
     });
 
     // Main webview route - displays the photo viewer interface

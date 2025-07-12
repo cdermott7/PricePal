@@ -11,9 +11,11 @@
   "license": "ISC",
   "description": "Example app for taking photos with MentraOS",
   "dependencies": {
+    "@google/genai": "^1.9.0",
     "@mentra/sdk": "^2.1.2",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "mime": "^4.0.1",
     "ws": "^8.18.1"
   },
   "devDependencies": {
