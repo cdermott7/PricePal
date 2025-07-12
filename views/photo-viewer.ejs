@@ -15,6 +15,22 @@
     }
 
     :root {
+      --blur-light: blur(20px);
+      --blur-medium: blur(40px);
+      --blur-heavy: blur(80px);
+      --blur-intense: blur(120px);
+      --success: #34C759;
+      --warning: #FFD60A;
+      --error: #FF453A;
+      --info: #007AFF;
+      --brand-primary: #007aff;
+      --brand-secondary: #5856d6;
+      --brand-accent: #1d1d1f;
+    }
+
+    /* Dark theme (default) */
+    :root,
+    [data-theme="dark"] {
       --primary-glass: rgba(255, 255, 255, 0.08);
       --secondary-glass: rgba(255, 255, 255, 0.04);
       --accent-glass: rgba(255, 255, 255, 0.12);
@@ -29,25 +45,38 @@
       --shadow-medium: rgba(0, 0, 0, 0.12);
       --shadow-hard: rgba(0, 0, 0, 0.18);
       --shadow-intense: rgba(0, 0, 0, 0.24);
-      --blur-light: blur(20px);
-      --blur-medium: blur(40px);
-      --blur-heavy: blur(80px);
-      --blur-intense: blur(120px);
-      --success: #34C759;
-      --warning: #FFD60A;
-      --error: #FF453A;
-      --info: #007AFF;
-      --brand-primary: #007aff;
-      --brand-secondary: #5856d6;
-      --brand-accent: #1d1d1f;
+      --bg-primary: #000000;
+      --bg-secondary: #0a0a0a;
+      --star-opacity: 0.1;
+    }
+
+    /* Light theme */
+    [data-theme="light"] {
+      --primary-glass: rgba(255, 255, 255, 0.7);
+      --secondary-glass: rgba(255, 255, 255, 0.5);
+      --accent-glass: rgba(255, 255, 255, 0.9);
+      --elevated-glass: rgba(255, 255, 255, 0.8);
+      --text-primary: rgba(0, 0, 0, 0.98);
+      --text-secondary: rgba(0, 0, 0, 0.78);
+      --text-tertiary: rgba(0, 0, 0, 0.58);
+      --text-quaternary: rgba(0, 0, 0, 0.38);
+      --border-glass: rgba(0, 0, 0, 0.08);
+      --border-subtle: rgba(0, 0, 0, 0.05);
+      --shadow-soft: rgba(0, 0, 0, 0.03);
+      --shadow-medium: rgba(0, 0, 0, 0.08);
+      --shadow-hard: rgba(0, 0, 0, 0.12);
+      --shadow-intense: rgba(0, 0, 0, 0.16);
+      --bg-primary: #f5f5f7;
+      --bg-secondary: #ffffff;
+      --star-opacity: 0.03;
     }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
-      background: radial-gradient(ellipse at top, rgba(0, 0, 0, 0.8) 0%, #000000 100%),
+      background: radial-gradient(ellipse at top, var(--bg-secondary) 0%, var(--bg-primary) 100%),
                   radial-gradient(ellipse at bottom right, rgba(0, 122, 255, 0.03) 0%, transparent 50%),
                   radial-gradient(ellipse at bottom left, rgba(88, 86, 214, 0.02) 0%, transparent 50%),
-                  #000000;
+                  var(--bg-primary);
       background-attachment: fixed;
       min-height: 100vh;
       color: var(--text-primary);
@@ -58,6 +87,7 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       position: relative;
+      transition: background 0.3s ease, color 0.3s ease;
     }
 
     body::before {
@@ -68,15 +98,16 @@
       width: 100%;
       height: 100%;
       background-image: 
-        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.1), transparent),
-        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.08), transparent),
-        radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.06), transparent),
-        radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.04), transparent),
-        radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.1), transparent);
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, var(--star-opacity)), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, calc(var(--star-opacity) * 0.8)), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, calc(var(--star-opacity) * 0.6)), transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, calc(var(--star-opacity) * 0.4)), transparent),
+        radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, var(--star-opacity)), transparent);
       background-repeat: repeat;
       background-size: 200px 100px;
       pointer-events: none;
       z-index: 1;
+      transition: opacity 0.3s ease;
     }
 
     .glass-surface {
@@ -88,6 +119,7 @@
         0 8px 32px var(--shadow-soft),
         inset 0 1px 0 rgba(255, 255, 255, 0.1),
         inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
     }
 
     .glass-elevated {
@@ -100,6 +132,7 @@
         0 8px 32px var(--shadow-soft),
         inset 0 1px 0 rgba(255, 255, 255, 0.12),
         inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
     }
 
     .nav-bar {
@@ -173,6 +206,53 @@
       display: flex;
       align-items: center;
       gap: 12px;
+    }
+
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      background: var(--secondary-glass);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .theme-toggle:hover {
+      background: var(--accent-glass);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--shadow-soft);
+    }
+
+    .theme-icon {
+      position: absolute;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sun-icon {
+      opacity: 0;
+      transform: rotate(180deg) scale(0.8);
+    }
+
+    .moon-icon {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+
+    [data-theme="light"] .sun-icon {
+      opacity: 1;
+      transform: rotate(0deg) scale(1);
+    }
+
+    [data-theme="light"] .moon-icon {
+      opacity: 0;
+      transform: rotate(-180deg) scale(0.8);
     }
 
     .status-pill {
@@ -709,6 +789,15 @@
         </div>
       </div>
       <div class="nav-actions">
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+          <svg class="theme-icon sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+          </svg>
+          <svg class="theme-icon moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
         <div id="global-status" class="status-pill ready">
           Ready
         </div>
@@ -1216,7 +1305,35 @@
       }
     }
 
+    // Theme management
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      // Update theme toggle button
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', toggleTheme);
+      }
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      // Add a subtle animation feedback
+      const themeToggle = document.getElementById('theme-toggle');
+      themeToggle.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        themeToggle.style.transform = '';
+      }, 100);
+    }
+
     // Initialize application
+    initializeTheme();
     checkForPhotos();
     setInterval(checkForPhotos, 1000);
   </script>
