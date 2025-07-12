@@ -42,11 +42,35 @@
       text-align: center;
       font-size: 16px;
     }
+
+    .analysis-container {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .analysis-loading {
+      color: #ccc;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <div class="photo-container">
     <div id="content" class="loading">Loading latest photo...</div>
+  </div>
+  
+  <div id="analysis" class="analysis-container">
+    <div class="analysis-loading">Analyzing photo with AI...</div>
   </div>
 
   <script>
@@ -63,6 +87,7 @@
           // No photo available
           document.getElementById('content').innerHTML =
             '<div class="no-photo">No photos taken yet. Take a photo using your Mentra Live by pressing the right button!</div>';
+          document.getElementById('analysis').style.display = 'none';
           return;
         }
 
@@ -79,11 +104,42 @@
           // Update the display with new photo
           document.getElementById('content').innerHTML =
             '<img class="photo" src="/api/photo/' + photoInfo.requestId + '" alt="Latest Photo" />';
+          
+          // Show analysis container and start checking for analysis
+          document.getElementById('analysis').style.display = 'block';
+          checkForGeminiAnalysis();
         }
       } catch (error) {
         console.error('Error checking for new photo:', error);
         document.getElementById('content').innerHTML =
           '<div class="no-photo">Error loading photo. Please refresh the page.</div>';
+      }
+    }
+
+    /**
+     * Check for Gemini analysis and update display
+     */
+    async function checkForGeminiAnalysis() {
+      try {
+        const response = await fetch('/api/gemini-analysis');
+
+        if (response.status === 404) {
+          // Analysis not ready yet, check again in 2 seconds
+          setTimeout(checkForGeminiAnalysis, 2000);
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch analysis');
+        }
+
+        const data = await response.json();
+        document.getElementById('analysis').innerHTML = 
+          '<div><strong>AI Analysis:</strong><br>' + data.analysis.replace(/\n/g, '<br>') + '</div>';
+      } catch (error) {
+        console.error('Error checking for analysis:', error);
+        document.getElementById('analysis').innerHTML = 
+          '<div class="analysis-loading">Error loading AI analysis</div>';
       }
     }
 
