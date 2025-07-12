@@ -188,16 +188,19 @@ class ExampleMentraOSApp extends AppServer {
       const base64Image = photo.buffer.toString('base64');
       
       // Create the prompt
-      const prompt = `You will be provided an image of a product.
+      const prompt = `You will be provided an image of a product that the user is currently looking at.
 
-1. Give me 3 alternatives to this product and their prices in JSON format with:
+1. Give the user 3 alternatives to this product and their prices in JSON format with:
 Product Name
 Product Store
 Product Price
+Product URL
 
 Only include products with all fields populated.
 
-2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.
+2. Provide a concise recommendation about whether to buy the product: e.g. how are prices of comparable products at different stores, if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.
+
+In addition, mention potential Coupons and Discounts that the user can use to save money for this product or similar products at other stores.
 
 Analyze this product image and provide alternatives with current pricing.`;
 
