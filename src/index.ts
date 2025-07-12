@@ -27,7 +27,7 @@ const PORT = parseInt(process.env.PORT || '3000');
  * Extends AppServer to provide photo taking and webview display capabilities
  */
 class ExampleMentraOSApp extends AppServer {
-  private photos: Map<string, StoredPhoto> = new Map(); // Store photos by userId
+  private photos: Map<string, StoredPhoto[]> = new Map(); // Store array of photos by userId
   private latestPhotoTimestamp: Map<string, number> = new Map(); // Track latest photo timestamp per user
   private isStreamingPhotos: Map<string, boolean> = new Map(); // Track if we are streaming photos for a user
   private nextPhotoTime: Map<string, number> = new Map(); // Track next photo time for a user
@@ -39,7 +39,9 @@ class ExampleMentraOSApp extends AppServer {
       apiKey: MENTRAOS_API_KEY,
       port: PORT,
     });
+    console.log(`[INIT] Initializing Gemini AI with API key: ${GEMINI_API_KEY.substring(0, 10)}...`);
     this.geminiAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    console.log(`[INIT] Gemini AI initialized successfully`);
     this.setupWebviewRoutes();
     console.log(`[INIT] Webview routes setup complete`);
   }
@@ -161,10 +163,12 @@ class ExampleMentraOSApp extends AppServer {
     // or store it in a database or cloud storage, send it to roboflow, or do other processing here
 
     // cache the photo for display
-    this.photos.set(userId, cachedPhoto);
+    const userPhotos = this.photos.get(userId) || [];
+    userPhotos.push(cachedPhoto);
+    this.photos.set(userId, userPhotos);
     // update the latest photo timestamp
     this.latestPhotoTimestamp.set(userId, cachedPhoto.timestamp.getTime());
-    console.log(`[CACHE] Photo cached for user ${userId}, timestamp: ${cachedPhoto.timestamp}, total photos in cache: ${this.photos.size}`);
+    console.log(`[CACHE] Photo cached for user ${userId}, timestamp: ${cachedPhoto.timestamp}, total photos for user: ${userPhotos.length}`);
     
     // Analyze the photo with Gemini
     console.log(`[CACHE] Initiating Gemini analysis for user ${userId}`);
@@ -240,17 +244,18 @@ Analyze this product image and provide alternatives with current pricing.`;
         return;
       }
 
-      const photo = this.photos.get(userId);
-      if (!photo) {
-        console.log(`[API] No photo found for userId: ${userId}`);
+      const userPhotos = this.photos.get(userId);
+      if (!userPhotos || userPhotos.length === 0) {
+        console.log(`[API] No photos found for userId: ${userId}`);
         res.status(404).json({ error: 'No photo available' });
         return;
       }
 
-      console.log(`[API] Returning latest photo for userId: ${userId}, requestId: ${photo.requestId}`);
+      const latestPhoto = userPhotos[userPhotos.length - 1];
+      console.log(`[API] Returning latest photo for userId: ${userId}, requestId: ${latestPhoto.requestId}`);
       res.json({
-        requestId: photo.requestId,
-        timestamp: photo.timestamp.getTime(),
+        requestId: latestPhoto.requestId,
+        timestamp: latestPhoto.timestamp.getTime(),
         hasPhoto: true
       });
     });
@@ -265,8 +270,14 @@ Analyze this product image and provide alternatives with current pricing.`;
         return;
       }
 
-      const photo = this.photos.get(userId);
-      if (!photo || photo.requestId !== requestId) {
+      const userPhotos = this.photos.get(userId);
+      if (!userPhotos || userPhotos.length === 0) {
+        res.status(404).json({ error: 'Photo not found' });
+        return;
+      }
+
+      const photo = userPhotos.find(p => p.requestId === requestId);
+      if (!photo) {
         res.status(404).json({ error: 'Photo not found' });
         return;
       }
@@ -289,21 +300,74 @@ Analyze this product image and provide alternatives with current pricing.`;
         return;
       }
 
-      const photo = this.photos.get(userId);
-      if (!photo) {
-        console.log(`[API] No photo found for userId: ${userId} in gemini-analysis request`);
+      const userPhotos = this.photos.get(userId);
+      if (!userPhotos || userPhotos.length === 0) {
+        console.log(`[API] No photos found for userId: ${userId} in gemini-analysis request`);
         res.status(404).json({ error: 'No photo available' });
         return;
       }
 
-      const analysis = (photo as any).geminiAnalysis;
+      const latestPhoto = userPhotos[userPhotos.length - 1];
+      const analysis = (latestPhoto as any).geminiAnalysis;
       if (!analysis) {
-        console.log(`[API] No Gemini analysis available for userId: ${userId}, requestId: ${photo.requestId}`);
+        console.log(`[API] No Gemini analysis available for userId: ${userId}, requestId: ${latestPhoto.requestId}`);
         res.status(404).json({ error: 'No Gemini analysis available yet' });
         return;
       }
 
       console.log(`[API] Returning Gemini analysis for userId: ${userId}, analysis length: ${analysis.length}`);
+      res.json({ analysis });
+    });
+
+    // API endpoint to get all photos for a user
+    app.get('/api/photos', (req: any, res: any) => {
+      const userId = (req as AuthenticatedRequest).authUserId;
+      console.log(`[API] All photos request for userId: ${userId}`);
+
+      if (!userId) {
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+      }
+
+      const userPhotos = this.photos.get(userId) || [];
+      const photoSummaries = userPhotos.map(photo => ({
+        requestId: photo.requestId,
+        timestamp: photo.timestamp.getTime(),
+        mimeType: photo.mimeType,
+        hasAnalysis: !!(photo as any).geminiAnalysis
+      }));
+
+      res.json({ photos: photoSummaries });
+    });
+
+    // API endpoint to get analysis for a specific photo
+    app.get('/api/analysis/:requestId', (req: any, res: any) => {
+      const userId = (req as AuthenticatedRequest).authUserId;
+      const requestId = req.params.requestId;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+      }
+
+      const userPhotos = this.photos.get(userId);
+      if (!userPhotos || userPhotos.length === 0) {
+        res.status(404).json({ error: 'No photos found' });
+        return;
+      }
+
+      const photo = userPhotos.find(p => p.requestId === requestId);
+      if (!photo) {
+        res.status(404).json({ error: 'Photo not found' });
+        return;
+      }
+
+      const analysis = (photo as any).geminiAnalysis;
+      if (!analysis) {
+        res.status(404).json({ error: 'No analysis available yet' });
+        return;
+      }
+
       res.json({ analysis });
     });
 

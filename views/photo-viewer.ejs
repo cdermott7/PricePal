@@ -3,149 +3,610 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Photo Viewer</title>
+  <title>PricePal - Smart Price Comparison</title>
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
-      font-family: Arial, sans-serif;
+      color: #333;
+      overflow-x: hidden;
     }
 
-    .photo-container {
-      max-width: 100vw;
-      max-height: 100vh;
+    .header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px 0;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header h1 {
+      color: white;
+      font-size: 2.5em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.1em;
+      font-weight: 300;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-top: 20px;
+    }
+
+    .photo-section {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .photo-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+
+    .section-title {
+      font-size: 1.5em;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #2c3e50;
       display: flex;
-      justify-content: center;
       align-items: center;
+      gap: 10px;
     }
 
-    .photo {
+    .icon {
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.8em;
+    }
+
+    .photo-display {
+      position: relative;
+      background: #f8f9fa;
+      border-radius: 15px;
+      overflow: hidden;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .photo-display img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
-      border-radius: 8px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 
-    .no-photo {
-      color: white;
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .photo-thumbnail {
+      aspect-ratio: 1;
+      background: #f8f9fa;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .photo-thumbnail:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .photo-thumbnail.active {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .photo-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .analysis-section {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .analysis-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #11998e, #38ef7d);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .price-comparison {
+      display: grid;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .price-card {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 15px;
+      padding: 20px;
+      border-left: 4px solid #667eea;
+      transition: all 0.3s ease;
+    }
+
+    .price-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .price-card h3 {
+      color: #2c3e50;
+      font-size: 1.2em;
+      margin-bottom: 8px;
+    }
+
+    .price-card .store {
+      color: #6c757d;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+    }
+
+    .price-card .price {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: #28a745;
+    }
+
+    .recommendation {
+      background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 20px;
+      border-left: 4px solid #e17055;
+    }
+
+    .recommendation h3 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .recommendation p {
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    .empty-state {
       text-align: center;
-      font-size: 18px;
+      padding: 60px 20px;
+      color: #6c757d;
     }
 
-    .loading {
-      color: white;
-      text-align: center;
-      font-size: 16px;
+    .empty-state img {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
+      opacity: 0.3;
     }
 
-    .analysis-container {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 15px;
-      border-radius: 8px;
-      font-size: 14px;
-      max-height: 200px;
-      overflow-y: auto;
-      display: none;
+    .empty-state h3 {
+      font-size: 1.3em;
+      margin-bottom: 10px;
     }
 
-    .analysis-loading {
-      color: #ccc;
-      font-style: italic;
+    .empty-state p {
+      font-size: 1em;
+      line-height: 1.6;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      font-weight: 500;
+      margin-left: 10px;
+    }
+
+    .status-badge.analyzing {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-badge.complete {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .pulse {
+      animation: pulse 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: 0.6; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .header h1 {
+        font-size: 2em;
+      }
+      
+      .photo-section, .analysis-section {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="photo-container">
-    <div id="content" class="loading">Loading latest photo...</div>
+  <div class="header">
+    <h1>💰 PricePal</h1>
+    <p>Smart Price Comparison with AI-Powered Analysis</p>
   </div>
-  
-  <div id="analysis" class="analysis-container">
-    <div class="analysis-loading">Analyzing photo with AI...</div>
+
+  <div class="container">
+    <div class="main-content">
+      <!-- Photo Section -->
+      <div class="photo-section">
+        <h2 class="section-title">
+          <div class="icon">📸</div>
+          Recent Photos
+        </h2>
+        
+        <div id="photo-display" class="photo-display">
+          <div class="empty-state">
+            <div style="font-size: 4em; margin-bottom: 20px;">📷</div>
+            <h3>No photos yet</h3>
+            <p>Take a photo using your Mentra glasses by pressing the right button to get started!</p>
+          </div>
+        </div>
+
+        <div id="photo-grid" class="photo-grid" style="display: none;">
+          <!-- Photo thumbnails will be inserted here -->
+        </div>
+      </div>
+
+      <!-- Analysis Section -->
+      <div class="analysis-section">
+        <h2 class="section-title">
+          <div class="icon">🧠</div>
+          AI Analysis
+          <span id="analysis-status" class="status-badge analyzing" style="display: none;">
+            <span class="loading-spinner"></span> Analyzing...
+          </span>
+        </h2>
+
+        <div id="analysis-content">
+          <div class="empty-state">
+            <div style="font-size: 4em; margin-bottom: 20px;">🔍</div>
+            <h3>Ready to analyze</h3>
+            <p>Take a photo to get AI-powered price comparisons and recommendations!</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    let currentRequestId = null;
+    let currentPhotos = [];
+    let currentPhotoIndex = -1;
+    let currentAnalysis = null;
 
-    /**
-     * Check for new photos and update display
-     */
-    async function checkForNewPhoto() {
+    // Check for new photos and update display
+    async function checkForPhotos() {
       try {
-        const response = await fetch('/api/latest-photo');
-
-        if (response.status === 404) {
-          // No photo available
-          document.getElementById('content').innerHTML =
-            '<div class="no-photo">No photos taken yet. Take a photo using your Mentra Live by pressing the right button!</div>';
-          document.getElementById('analysis').style.display = 'none';
-          return;
-        }
-
+        const response = await fetch('/api/photos');
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch photo info');
+          if (response.status === 401) {
+            document.getElementById('photo-display').innerHTML = `
+              <div class="empty-state">
+                <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
+                <h3>Authentication Required</h3>
+                <p>Please open this page from the MentraOS app</p>
+              </div>
+            `;
+            return;
+          }
+          throw new Error('Failed to fetch photos');
         }
 
-        const photoInfo = await response.json();
-
-        // Check if this is a new photo
-        if (photoInfo.requestId !== currentRequestId) {
-          currentRequestId = photoInfo.requestId;
-
-          // Update the display with new photo
-          document.getElementById('content').innerHTML =
-            '<img class="photo" src="/api/photo/' + photoInfo.requestId + '" alt="Latest Photo" />';
+        const data = await response.json();
+        
+        if (data.photos && data.photos.length > 0) {
+          currentPhotos = data.photos;
+          updatePhotoDisplay();
+          updatePhotoGrid();
           
-          // Show analysis container and start checking for analysis
-          document.getElementById('analysis').style.display = 'block';
-          checkForGeminiAnalysis();
+          // Check for analysis of the latest photo
+          if (currentPhotos.length > 0) {
+            const latestPhoto = currentPhotos[currentPhotos.length - 1];
+            if (currentPhotoIndex === -1) {
+              currentPhotoIndex = currentPhotos.length - 1;
+            }
+            checkForAnalysis(latestPhoto.requestId);
+          }
+        } else {
+          // No photos yet
+          document.getElementById('photo-display').innerHTML = `
+            <div class="empty-state">
+              <div style="font-size: 4em; margin-bottom: 20px;">📷</div>
+              <h3>No photos yet</h3>
+              <p>Take a photo using your Mentra glasses by pressing the right button to get started!</p>
+            </div>
+          `;
+          document.getElementById('photo-grid').style.display = 'none';
         }
       } catch (error) {
-        console.error('Error checking for new photo:', error);
-        document.getElementById('content').innerHTML =
-          '<div class="no-photo">Error loading photo. Please refresh the page.</div>';
+        console.error('Error checking for photos:', error);
+        document.getElementById('photo-display').innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 4em; margin-bottom: 20px;">⚠️</div>
+            <h3>Error loading photos</h3>
+            <p>Please refresh the page to try again</p>
+          </div>
+        `;
       }
     }
 
-    /**
-     * Check for Gemini analysis and update display
-     */
-    async function checkForGeminiAnalysis() {
-      try {
-        const response = await fetch('/api/gemini-analysis');
+    function updatePhotoDisplay() {
+      if (currentPhotos.length === 0) return;
+      
+      const photoIndex = currentPhotoIndex >= 0 ? currentPhotoIndex : currentPhotos.length - 1;
+      const photo = currentPhotos[photoIndex];
+      
+      document.getElementById('photo-display').innerHTML = `
+        <img src="/api/photo/${photo.requestId}" alt="Product Photo" />
+      `;
+    }
 
+    function updatePhotoGrid() {
+      const grid = document.getElementById('photo-grid');
+      
+      if (currentPhotos.length <= 1) {
+        grid.style.display = 'none';
+        return;
+      }
+      
+      grid.style.display = 'grid';
+      grid.innerHTML = currentPhotos.map((photo, index) => `
+        <div class="photo-thumbnail ${index === currentPhotoIndex ? 'active' : ''}" 
+             onclick="selectPhoto(${index})" 
+             title="Photo ${index + 1}">
+          <img src="/api/photo/${photo.requestId}" alt="Thumbnail ${index + 1}" />
+        </div>
+      `).join('');
+    }
+
+    function selectPhoto(index) {
+      currentPhotoIndex = index;
+      updatePhotoDisplay();
+      updatePhotoGrid();
+      
+      const photo = currentPhotos[index];
+      checkForAnalysis(photo.requestId);
+    }
+
+    async function checkForAnalysis(requestId) {
+      try {
+        // Show loading state
+        document.getElementById('analysis-status').style.display = 'inline-block';
+        document.getElementById('analysis-status').className = 'status-badge analyzing pulse';
+        
+        const response = await fetch(`/api/analysis/${requestId}`);
+        
         if (response.status === 404) {
           // Analysis not ready yet, check again in 2 seconds
-          setTimeout(checkForGeminiAnalysis, 2000);
+          setTimeout(() => checkForAnalysis(requestId), 2000);
           return;
         }
-
+        
         if (!response.ok) {
           throw new Error('Failed to fetch analysis');
         }
 
         const data = await response.json();
-        document.getElementById('analysis').innerHTML = 
-          '<div><strong>AI Analysis:</strong><br>' + data.analysis.replace(/\n/g, '<br>') + '</div>';
+        displayAnalysis(data.analysis);
+        
+        // Update status
+        document.getElementById('analysis-status').style.display = 'inline-block';
+        document.getElementById('analysis-status').className = 'status-badge complete';
+        document.getElementById('analysis-status').innerHTML = '✅ Complete';
+        
       } catch (error) {
         console.error('Error checking for analysis:', error);
-        document.getElementById('analysis').innerHTML = 
-          '<div class="analysis-loading">Error loading AI analysis</div>';
+        document.getElementById('analysis-content').innerHTML = `
+          <div class="empty-state">
+            <div style="font-size: 4em; margin-bottom: 20px;">❌</div>
+            <h3>Analysis Error</h3>
+            <p>Failed to load AI analysis. Please try again.</p>
+          </div>
+        `;
+        
+        document.getElementById('analysis-status').style.display = 'inline-block';
+        document.getElementById('analysis-status').className = 'status-badge';
+        document.getElementById('analysis-status').style.background = '#f8d7da';
+        document.getElementById('analysis-status').style.color = '#721c24';
+        document.getElementById('analysis-status').innerHTML = '❌ Error';
       }
     }
 
-    // Check for new photos every 500ms (twice per second)
-    checkForNewPhoto(); // Initial check
-    setInterval(checkForNewPhoto, 500);
+    function displayAnalysis(analysisText) {
+      try {
+        // Try to parse the analysis for structured data
+        const lines = analysisText.split('\n');
+        let jsonStart = -1;
+        let jsonEnd = -1;
+        let recommendation = '';
+        
+        // Find JSON block
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].includes('```json') || lines[i].includes('[')) {
+            jsonStart = i;
+          }
+          if (lines[i].includes('```') && jsonStart !== -1 && i > jsonStart) {
+            jsonEnd = i;
+            break;
+          }
+          if (lines[i].includes(']') && jsonStart !== -1) {
+            jsonEnd = i + 1;
+            break;
+          }
+        }
+        
+        // Extract recommendation
+        const recommendationStart = lines.findIndex(line => 
+          line.toLowerCase().includes('recommendation') || 
+          line.toLowerCase().includes('should') ||
+          line.toLowerCase().includes('buy')
+        );
+        
+        if (recommendationStart !== -1) {
+          recommendation = lines.slice(recommendationStart).join(' ').trim();
+        }
+        
+        let priceCards = '';
+        
+        if (jsonStart !== -1 && jsonEnd !== -1) {
+          try {
+            const jsonText = lines.slice(jsonStart, jsonEnd).join('\n')
+              .replace('```json', '').replace('```', '').trim();
+            
+            let alternatives;
+            if (jsonText.startsWith('[')) {
+              alternatives = JSON.parse(jsonText);
+            } else {
+              // Try to find JSON array in the text
+              const match = jsonText.match(/\[[\s\S]*\]/);
+              if (match) {
+                alternatives = JSON.parse(match[0]);
+              }
+            }
+            
+            if (alternatives && Array.isArray(alternatives)) {
+              priceCards = alternatives.map(alt => `
+                <div class="price-card">
+                  <h3>${alt.ProductName || alt['Product Name'] || 'Unknown Product'}</h3>
+                  <div class="store">${alt.ProductStore || alt['Product Store'] || 'Unknown Store'}</div>
+                  <div class="price">$${alt.ProductPrice || alt['Product Price'] || 'N/A'}</div>
+                </div>
+              `).join('');
+            }
+          } catch (e) {
+            console.error('Error parsing JSON:', e);
+          }
+        }
+        
+        // If no structured data found, show raw analysis
+        if (!priceCards) {
+          priceCards = `
+            <div class="price-card">
+              <h3>Analysis Results</h3>
+              <p style="white-space: pre-wrap; line-height: 1.6;">${analysisText}</p>
+            </div>
+          `;
+        }
+        
+        let recommendationHtml = '';
+        if (recommendation) {
+          recommendationHtml = `
+            <div class="recommendation">
+              <h3>💡 Recommendation</h3>
+              <p>${recommendation}</p>
+            </div>
+          `;
+        }
+        
+        document.getElementById('analysis-content').innerHTML = `
+          <div class="price-comparison">
+            ${priceCards}
+          </div>
+          ${recommendationHtml}
+        `;
+        
+      } catch (error) {
+        console.error('Error displaying analysis:', error);
+        // Fallback to raw text display
+        document.getElementById('analysis-content').innerHTML = `
+          <div class="price-card">
+            <h3>Analysis Results</h3>
+            <p style="white-space: pre-wrap; line-height: 1.6;">${analysisText}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Check for photos every 1 second
+    checkForPhotos();
+    setInterval(checkForPhotos, 1000);
   </script>
 </body>
 </html>
