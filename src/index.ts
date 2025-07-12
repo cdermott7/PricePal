@@ -20,6 +20,7 @@ interface StoredPhoto {
 const PACKAGE_NAME = process.env.PACKAGE_NAME ?? (() => { throw new Error('PACKAGE_NAME is not set in .env file'); })();
 const MENTRAOS_API_KEY = process.env.MENTRAOS_API_KEY ?? (() => { throw new Error('MENTRAOS_API_KEY is not set in .env file'); })();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? (() => { throw new Error('GEMINI_API_KEY is not set in .env file'); })();
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY ?? (() => { throw new Error('ELEVENLABS_API_KEY is not set in .env file'); })();
 const PORT = parseInt(process.env.PORT || '3000');
 
 /**
@@ -215,6 +216,40 @@ Analyze this product image and provide alternatives with current pricing.`;
       
       console.log(`Gemini analysis for user ${userId}:`, analysis);
       
+      // elevenlabs text to speech
+      try {
+        // Get the first 50 characters of the analysis
+        const first50Chars = analysis.substring(0, 50);
+        console.log(`[ELEVENLABS] Speaking first 50 characters for user ${userId}: "${first50Chars}"`);
+        
+        // Create speech using ElevenLabs API
+        const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb?output_format=mp3_44100_128", {
+          method: "POST",
+          headers: {
+            "xi-api-key": ELEVENLABS_API_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "text": first50Chars,
+            "model_id": "eleven_multilingual_v2"
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`);
+        }
+
+        const audioBuffer = await response.arrayBuffer();
+        console.log(`[ELEVENLABS] Successfully generated audio for user ${userId}, size: ${audioBuffer.byteLength} bytes`);
+        
+        // Store the audio buffer with the photo for later playback
+        (photo as any).audioBuffer = audioBuffer;
+        console.log(`[ELEVENLABS] Audio stored with photo for user ${userId}`);
+        
+      } catch (error) {
+        console.error(`[ELEVENLABS] Error generating speech for user ${userId}:`, error);
+      }
+      
       // Store the analysis with the photo for later retrieval
       (photo as any).geminiAnalysis = analysis;
       console.log(`[GEMINI] Analysis stored with photo for user ${userId}`);
@@ -326,7 +361,12 @@ Analyze this product image and provide alternatives with current pricing.`;
       }
 
       console.log(`[API] Returning Gemini analysis for userId: ${userId}, analysis length: ${analysis.length}`);
-      res.json({ analysis });
+      const hasAudio = !!(latestPhoto as any).audioBuffer;
+      res.json({ 
+        analysis,
+        hasAudio,
+        audioUrl: hasAudio ? `/api/audio/${latestPhoto.requestId}` : null
+      });
     });
 
     // API endpoint to get all photos for a user
@@ -344,7 +384,8 @@ Analyze this product image and provide alternatives with current pricing.`;
         requestId: photo.requestId,
         timestamp: photo.timestamp.getTime(),
         mimeType: photo.mimeType,
-        hasAnalysis: !!(photo as any).geminiAnalysis
+        hasAnalysis: !!(photo as any).geminiAnalysis,
+        hasAudio: !!(photo as any).audioBuffer
       }));
 
       res.json({ photos: photoSummaries });
@@ -392,6 +433,41 @@ Analyze this product image and provide alternatives with current pricing.`;
       console.log(`[API] Returning Gemini analysis for requestId: ${requestId}, analysis length: ${analysis.length}`);
       console.log(`[API] Analysis preview: ${analysis.substring(0, 200)}...`);
       res.json({ analysis });
+    });
+
+    // API endpoint to get audio for a specific photo
+    app.get('/api/audio/:requestId', (req: any, res: any) => {
+      const userId = (req as AuthenticatedRequest).authUserId;
+      const requestId = req.params.requestId;
+
+      if (!userId) {
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+      }
+
+      const userPhotos = this.photos.get(userId);
+      if (!userPhotos || userPhotos.length === 0) {
+        res.status(404).json({ error: 'No photos found' });
+        return;
+      }
+
+      const photo = userPhotos.find(p => p.requestId === requestId);
+      if (!photo) {
+        res.status(404).json({ error: 'Photo not found' });
+        return;
+      }
+
+      const audioBuffer = (photo as any).audioBuffer;
+      if (!audioBuffer) {
+        res.status(404).json({ error: 'No audio available yet' });
+        return;
+      }
+
+      res.set({
+        'Content-Type': 'audio/mpeg',
+        'Cache-Control': 'no-cache'
+      });
+      res.send(Buffer.from(audioBuffer));
     });
 
     // Main webview route - displays the photo viewer interface

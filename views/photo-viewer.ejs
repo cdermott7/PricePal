@@ -1129,127 +1129,163 @@
       `;
     }
 
-         async function checkForAnalysis(requestId) {
-       try {
-         console.log(`[FRONTEND] Checking for analysis for requestId: ${requestId}`);
-         const response = await fetch(`/api/analysis/${requestId}`);
-         
-         console.log(`[FRONTEND] Analysis response status: ${response.status}`);
-         
-         if (response.status === 404) {
-           console.log(`[FRONTEND] Analysis not ready yet for ${requestId}, retrying in 2s`);
-           setTimeout(() => checkForAnalysis(requestId), 2000);
-           return;
-         }
-         
-         if (!response.ok) {
-           const errorText = await response.text();
-           console.error(`[FRONTEND] Analysis request failed: ${response.status} - ${errorText}`);
-           throw new Error(`Failed to fetch analysis: ${response.status}`);
-         }
+    async function checkForAnalysis(requestId) {
+      try {
+        console.log(`[FRONTEND] Checking for analysis for requestId: ${requestId}`);
+        const response = await fetch(`/api/analysis/${requestId}`);
+        
+        console.log(`[FRONTEND] Analysis response status: ${response.status}`);
+        
+        if (response.status === 404) {
+          console.log(`[FRONTEND] Analysis not ready yet for ${requestId}, retrying in 2s`);
+          setTimeout(() => checkForAnalysis(requestId), 2000);
+          return;
+        }
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`[FRONTEND] Analysis request failed: ${response.status} - ${errorText}`);
+          throw new Error(`Failed to fetch analysis: ${response.status}`);
+        }
 
-         const data = await response.json();
-         console.log(`[FRONTEND] Received analysis data:`, data);
-         
-         if (!data.analysis) {
-           console.error('[FRONTEND] No analysis in response data');
-           throw new Error('No analysis data received');
-         }
-         
-         analysisCache.set(requestId, data.analysis);
-         displayAnalysis(data.analysis);
-         
-       } catch (error) {
-         console.error('[FRONTEND] Error checking for analysis:', error);
-         showAnalysisError(error.message || error.toString());
-       }
-     }
+        const data = await response.json();
+        console.log(`[FRONTEND] Received analysis data:`, data);
+        
+        if (!data.analysis) {
+          console.error('[FRONTEND] No analysis in response data');
+          throw new Error('No analysis data received');
+        }
+        
+        analysisCache.set(requestId, data.analysis);
+        displayAnalysis(data.analysis, data.hasAudio, data.audioUrl);
+        
+      } catch (error) {
+        console.error('[FRONTEND] Error checking for analysis:', error);
+        showAnalysisError(error.message || error.toString());
+      }
+    }
+          </div>
+          <div class="panel-content">
+            <div class="empty-state">
+              <div class="empty-icon pulse">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+              </div>
+              <div class="empty-title">AI Analysis in Progress</div>
+              <div class="empty-subtitle">Our advanced algorithms are analyzing your product and comparing market prices</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
-         function displayAnalysis(analysisText) {
-       console.log(`[FRONTEND] Displaying analysis:`, analysisText);
-       
-       const parsed = parseAIResponse(analysisText);
-       console.log(`[FRONTEND] Parsed analysis:`, parsed);
-       
-       // Show the analysis section with proper vertical stacking
-       const analysisSection = document.getElementById('analysis-section');
-       analysisSection.style.display = 'block';
-       
-       if (parsed.products.length > 0) {
-         console.log(`[FRONTEND] Found ${parsed.products.length} products to display`);
-         const priceCards = parsed.products.map(product => `
-           <div class="price-card shimmer-effect">
-             <h3>${product.name}</h3>
-             <div class="store">${product.store}</div>
-             <div class="price">${product.priceDisplay}</div>
-             ${product.savings ? `<div class="savings">Save $${product.savings}</div>` : ''}
-           </div>
-         `).join('');
-         
-         document.getElementById('price-comparison').innerHTML = priceCards;
-       } else {
-         console.log(`[FRONTEND] No structured products found, showing clean analysis`);
-         // Show a clean version of the analysis without raw JSON
-         const cleanText = analysisText.replace(/```json[\s\S]*?```/g, '').replace(/\n+/g, '\n').trim();
-         document.getElementById('price-comparison').innerHTML = `
-           <div class="price-card">
-             <h3>Analysis Complete</h3>
-             <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${cleanText}</p>
-           </div>
-         `;
-       }
-       
-       if (parsed.recommendation) {
-         console.log(`[FRONTEND] Showing recommendation: ${parsed.recommendation}`);
-         document.getElementById('recommendation-text').textContent = parsed.recommendation;
-         document.getElementById('recommendation-section').style.display = 'block';
-       } else {
-         console.log(`[FRONTEND] No recommendation found`);
-         document.getElementById('recommendation-section').style.display = 'none';
-       }
-       
-       // Update global status
-       const globalStatus = document.getElementById('global-status');
-       globalStatus.className = 'status-pill ready';
-       globalStatus.innerHTML = 'Analysis Complete';
-     }
+    function displayAnalysis(analysisText, hasAudio = false, audioUrl = null) {
+      console.log(`[FRONTEND] Displaying analysis:`, analysisText);
+      
+      const parsed = parseAIResponse(analysisText);
+      console.log(`[FRONTEND] Parsed analysis:`, parsed);
+      
+      // Show the analysis section with proper vertical stacking
+      const analysisSection = document.getElementById('analysis-section');
+      analysisSection.style.display = 'block';
+      
+      // Audio player HTML
+      let audioHtml = '';
+      if (hasAudio && audioUrl) {
+        audioHtml = `
+          <div class="audio-player" style="margin: 20px 0; padding: 15px; background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; color: white;">
+            <h3 style="margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+              🔊 Audio Summary
+            </h3>
+            <audio controls style="width: 100%; height: 40px;">
+              <source src="${audioUrl}" type="audio/mpeg">
+              Your browser does not support the audio element.
+            </audio>
+            <p style="margin-top: 8px; font-size: 0.9em; opacity: 0.9;">
+              Listen to the first 50 characters of the analysis
+            </p>
+          </div>
+        `;
+      }
+      
+      if (parsed.products.length > 0) {
+        console.log(`[FRONTEND] Found ${parsed.products.length} products to display`);
+        const priceCards = parsed.products.map(product => `
+          <div class="price-card shimmer-effect">
+            <h3>${product.name}</h3>
+            <div class="store">${product.store}</div>
+            <div class="price">${product.priceDisplay}</div>
+            ${product.savings ? `<div class="savings">Save $${product.savings}</div>` : ''}
+          </div>
+        `).join('');
+        
+        document.getElementById('price-comparison').innerHTML = priceCards;
+      } else {
+        console.log(`[FRONTEND] No structured products found, showing clean analysis`);
+        // Show a clean version of the analysis without raw JSON
+        const cleanText = analysisText.replace(/```json[\s\S]*?```/g, '').replace(/\n+/g, '\n').trim();
+        document.getElementById('price-comparison').innerHTML = `
+          <div class="price-card">
+            <h3>Analysis Complete</h3>
+            <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${cleanText}</p>
+          </div>
+        `;
+      }
+      
+      if (parsed.recommendation) {
+        console.log(`[FRONTEND] Showing recommendation: ${parsed.recommendation}`);
+        document.getElementById('recommendation-text').textContent = parsed.recommendation;
+        document.getElementById('recommendation-section').style.display = 'block';
+      } else {
+        console.log(`[FRONTEND] No recommendation found`);
+        document.getElementById('recommendation-section').style.display = 'none';
+      }
+      
+      // Update global status
+      const globalStatus = document.getElementById('global-status');
+      globalStatus.className = 'status-pill ready';
+      globalStatus.innerHTML = 'Analysis Complete';
+    }
 
-         function showAnalysisError(errorMessage = 'Unknown error') {
-       console.log(`[FRONTEND] Showing analysis error: ${errorMessage}`);
-       
-       const globalStatus = document.getElementById('global-status');
-       globalStatus.className = 'status-pill error';
-       globalStatus.innerHTML = 'Analysis Failed';
-       
-       const analysisSection = document.getElementById('analysis-section');
-       analysisSection.style.display = 'flex';
-       analysisSection.innerHTML = `
-         <div class="panel glass-elevated">
-           <div class="panel-header">
-             <div class="panel-title">Analysis Error</div>
-             <div class="panel-subtitle">Unable to complete analysis</div>
-           </div>
-           <div class="panel-content">
-             <div class="empty-state">
-               <div class="empty-icon">
-                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <circle cx="12" cy="12" r="10"/>
-                   <line x1="15" y1="9" x2="9" y2="15"/>
-                   <line x1="9" y1="9" x2="15" y2="15"/>
-                 </svg>
-               </div>
-               <div class="empty-title">Analysis Failed</div>
-               <div class="empty-subtitle">
-                 Please try taking another photo or check your connection<br>
-                 <small style="color: var(--text-quaternary); margin-top: 8px; display: block;">
-                   Error: ${errorMessage}
-                 </small>
-               </div>
-             </div>
-           </div>
-         </div>
-       `;
-     }
+    function showAnalysisError(errorMessage = 'Unknown error') {
+      console.log(`[FRONTEND] Showing analysis error: ${errorMessage}`);
+      
+      const globalStatus = document.getElementById('global-status');
+      globalStatus.className = 'status-pill error';
+      globalStatus.innerHTML = 'Analysis Failed';
+      
+      const analysisSection = document.getElementById('analysis-section');
+      analysisSection.style.display = 'flex';
+      analysisSection.innerHTML = `
+        <div class="panel glass-elevated">
+          <div class="panel-header">
+            <div class="panel-title">Analysis Error</div>
+            <div class="panel-subtitle">Unable to complete analysis</div>
+          </div>
+          <div class="panel-content">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="15" y1="9" x2="9" y2="15"/>
+                  <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+              </div>
+              <div class="empty-title">Analysis Failed</div>
+              <div class="empty-subtitle">
+                Please try taking another photo or check your connection<br>
+                <small style="color: var(--text-quaternary); margin-top: 8px; display: block;">
+                  Error: ${errorMessage}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
     function showEmptyState(title, subtitle) {
       const catalogue = document.getElementById('photo-catalogue');
@@ -1300,6 +1336,7 @@
         } else {
           console.log('Analysis not available yet, will retry automatically');
         }
+
       } catch (error) {
         console.error('Error loading analysis:', error);
       }
