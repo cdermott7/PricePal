@@ -68,6 +68,11 @@ Recommendation: This appears to be a good price for the current market, and I wo
 console.log("Testing ElevenLabs text-to-speech functionality...");
 speakAnalysis(exampleAnalysis).then(() => {
   console.log("Test completed!");
+  console.log("\nTo test with MentraOS glasses:");
+  console.log("1. Start the main app: bun run dev");
+  console.log("2. Take a photo through the MentraOS app");
+  console.log("3. The analysis will automatically be spoken");
+  console.log("4. Or test audio playback: POST /api/play-test-audio");
 }).catch((error) => {
   console.error("Test failed:", error);
 }); 

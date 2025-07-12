@@ -33,6 +33,8 @@ class ExampleMentraOSApp extends AppServer {
   private isStreamingPhotos: Map<string, boolean> = new Map(); // Track if we are streaming photos for a user
   private nextPhotoTime: Map<string, number> = new Map(); // Track next photo time for a user
   private geminiAI: GoogleGenerativeAI; // Gemini AI instance
+  private sessions: Map<string, AppSession> = new Map(); // Store active sessions by userId
+  private pendingAudioUrls: Map<string, string> = new Map(); // Store pending audio URLs by userId
 
   constructor() {
     super({
@@ -55,10 +57,25 @@ class ExampleMentraOSApp extends AppServer {
     // this gets called whenever a user launches the app
     console.log(`[SESSION] Session started for user ${userId}, sessionId: ${sessionId}`);
 
+    // Store the session for later use
+    this.sessions.set(userId, session);
+
     // set the initial state of the user
     this.isStreamingPhotos.set(userId, false);
     this.nextPhotoTime.set(userId, Date.now());
     console.log(`[SESSION] Initialized user state for ${userId}`);
+
+    // Check if there's pending audio to play
+    const pendingAudioUrl = this.pendingAudioUrls.get(userId);
+    if (pendingAudioUrl) {
+      console.log(`[SESSION] Playing pending audio for user ${userId}: ${pendingAudioUrl}`);
+      try {
+        await session.audio.playAudio({ audioUrl: pendingAudioUrl });
+        this.pendingAudioUrls.delete(userId);
+      } catch (error) {
+        console.error(`[SESSION] Error playing pending audio for user ${userId}:`, error);
+      }
+    }
 
     // this gets called whenever a user presses a button
     session.events.onButtonPress(async (button) => {
@@ -132,6 +149,7 @@ class ExampleMentraOSApp extends AppServer {
     // clean up the user's state
     this.isStreamingPhotos.set(userId, false);
     this.nextPhotoTime.delete(userId);
+    this.sessions.delete(userId);
     console.log(`[SESSION] Session stopped for user ${userId}, sessionId: ${sessionId}, reason: ${reason}`);
   }
 
@@ -261,9 +279,40 @@ Analyze this product image and provide alternatives with current pricing.`;
       const audioBuffer = await response.arrayBuffer();
       console.log(`[TTS] Audio generated successfully for user ${userId}, size: ${audioBuffer.byteLength} bytes`);
       
-      // Store the audio buffer for potential playback
-      // Note: In a real implementation, you might want to save this to a file or stream it
-      console.log(`[TTS] Audio ready for playback - first 50 characters of analysis spoken`);
+      // Save the audio to a temporary file that can be served via HTTP
+      const fs = require('fs');
+      const path = require('path');
+      
+      // Create audio directory if it doesn't exist
+      const audioDir = path.join(process.cwd(), 'audio');
+      if (!fs.existsSync(audioDir)) {
+        fs.mkdirSync(audioDir, { recursive: true });
+      }
+      
+      const audioFileName = `analysis-${userId}-${Date.now()}.mp3`;
+      const audioFilePath = path.join(audioDir, audioFileName);
+      fs.writeFileSync(audioFilePath, Buffer.from(audioBuffer));
+      
+      // Create a public URL for the audio file
+      const audioUrl = `http://localhost:${PORT}/audio/${audioFileName}`;
+      console.log(`[TTS] Audio saved to: ${audioFilePath}`);
+      console.log(`[TTS] Audio URL: ${audioUrl}`);
+      
+      // Try to play the audio immediately if session is available
+      const session = this.sessions.get(userId);
+      if (session) {
+        console.log(`[TTS] Playing audio immediately for user ${userId}`);
+        try {
+          await session.audio.playAudio({ audioUrl: audioUrl });
+          console.log(`[TTS] Audio played successfully for user ${userId}`);
+        } catch (error) {
+          console.error(`[TTS] Error playing audio for user ${userId}:`, error);
+        }
+      } else {
+        // Store the audio URL for later playback when session becomes available
+        console.log(`[TTS] No active session for user ${userId}, storing audio URL for later playback`);
+        this.pendingAudioUrls.set(userId, audioUrl);
+      }
       
     } catch (error) {
       console.error(`[TTS] Error generating speech for user ${userId}:`, error);
@@ -283,6 +332,16 @@ Analyze this product image and provide alternatives with current pricing.`;
       res.sendFile(filePath, (err) => {
         if (err) {
           res.status(404).send('Asset not found');
+        }
+      });
+    });
+
+    // Serve audio files
+    app.use('/audio', (req, res, next) => {
+      const filePath = path.join(process.cwd(), 'audio', req.path);
+      res.sendFile(filePath, (err) => {
+        if (err) {
+          res.status(404).send('Audio file not found');
         }
       });
     });
@@ -474,6 +533,37 @@ Analyze this product image and provide alternatives with current pricing.`;
       } catch (error) {
         console.error(`[API] Error speaking analysis for userId: ${userId}:`, error);
         res.status(500).json({ error: 'Failed to speak analysis' });
+      }
+    });
+
+    // API endpoint to play a test audio file
+    app.post('/api/play-test-audio', async (req: any, res: any) => {
+      const userId = (req as AuthenticatedRequest).authUserId;
+      console.log(`[API] Play test audio request for userId: ${userId}`);
+
+      if (!userId) {
+        console.log(`[API] Unauthenticated request to /api/play-test-audio`);
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+      }
+
+      const session = this.sessions.get(userId);
+      if (!session) {
+        console.log(`[API] No active session for userId: ${userId}`);
+        res.status(404).json({ error: 'No active session' });
+        return;
+      }
+
+      try {
+        // Play a test audio file
+        await session.audio.playAudio({ audioUrl: "https://okgodoit.com/cool.mp3" });
+        res.json({ 
+          success: true, 
+          message: 'Test audio played successfully'
+        });
+      } catch (error) {
+        console.error(`[API] Error playing test audio for userId: ${userId}:`, error);
+        res.status(500).json({ error: 'Failed to play test audio' });
       }
     });
 
