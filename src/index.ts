@@ -145,8 +145,35 @@ class ExampleMentraOSApp extends AppServer {
       const model = 'gemini-2.0-flash';
       const base64Image = photo.buffer.toString('base64');
       
+      const tools = [
+        { urlContext: {} },
+        {
+          googleSearch: {}
+        },
+      ];
+      
+      const config = {
+        tools,
+        responseMimeType: 'text/plain',
+        systemInstruction: [
+          {
+            text: `You will be provided an image of a product.
+
+1. Give me 3 alternatives to this product and their prices in JSON format with:
+Product Name
+Product Store
+Product Price
+
+Only include products with all fields populated.
+
+2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.`,
+          }
+        ],
+      };
+      
       const response = await this.geminiAI.models.generateContent({
         model,
+        config,
         contents: [
           {
             role: 'user',
@@ -158,23 +185,14 @@ class ExampleMentraOSApp extends AppServer {
                 },
               },
               {
-                text: `You will be provided an image of a product.
-
-1. Give me 3 alternatives to this product and their prices in JSON format with:
-Product Name
-Product Store
-Product Price
-
-Only include products with all fields populated.
-
-2. Provide a one sentence recommendation about whether to buy the product: e.g. if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.`,
+                text: `Analyze this product image and provide alternatives with current pricing.`,
               },
             ],
           },
         ],
       });
 
-      const analysis = response.response.text;
+      const analysis = response.text;
       console.log(`Gemini analysis for user ${userId}:`, analysis);
       
       // Store the analysis with the photo for later retrieval
