@@ -232,6 +232,16 @@ Analyze this product image and provide alternatives with current pricing.`;
  */
   private setupWebviewRoutes(): void {
     const app = this.getExpressApp();
+    
+    // Serve static assets
+    app.use('/assets', (req, res, next) => {
+      const filePath = path.join(process.cwd(), 'assets', 'public', req.path);
+      res.sendFile(filePath, (err) => {
+        if (err) {
+          res.status(404).send('Asset not found');
+        }
+      });
+    });
 
     // API endpoint to get the latest photo for the authenticated user
     app.get('/api/latest-photo', (req: any, res: any) => {
@@ -345,29 +355,42 @@ Analyze this product image and provide alternatives with current pricing.`;
       const userId = (req as AuthenticatedRequest).authUserId;
       const requestId = req.params.requestId;
 
+      console.log(`[API] Analysis request for userId: ${userId}, requestId: ${requestId}`);
+
       if (!userId) {
+        console.log(`[API] Unauthenticated request to /api/analysis`);
         res.status(401).json({ error: 'Not authenticated' });
         return;
       }
 
       const userPhotos = this.photos.get(userId);
       if (!userPhotos || userPhotos.length === 0) {
+        console.log(`[API] No photos found for userId: ${userId}`);
         res.status(404).json({ error: 'No photos found' });
         return;
       }
 
+      console.log(`[API] Found ${userPhotos.length} photos for user ${userId}`);
+
       const photo = userPhotos.find(p => p.requestId === requestId);
       if (!photo) {
+        console.log(`[API] Photo with requestId ${requestId} not found for user ${userId}`);
+        console.log(`[API] Available photo IDs: ${userPhotos.map(p => p.requestId).join(', ')}`);
         res.status(404).json({ error: 'Photo not found' });
         return;
       }
 
+      console.log(`[API] Found photo with requestId: ${requestId}`);
+
       const analysis = (photo as any).geminiAnalysis;
       if (!analysis) {
+        console.log(`[API] No Gemini analysis available yet for requestId: ${requestId}`);
         res.status(404).json({ error: 'No analysis available yet' });
         return;
       }
 
+      console.log(`[API] Returning Gemini analysis for requestId: ${requestId}, analysis length: ${analysis.length}`);
+      console.log(`[API] Analysis preview: ${analysis.substring(0, 200)}...`);
       res.json({ analysis });
     });
 

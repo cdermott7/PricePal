@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PricePal - Smart Price Comparison</title>
+  <title>PricePal - Enterprise Price Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -11,167 +14,203 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --primary-glass: rgba(255, 255, 255, 0.08);
+      --secondary-glass: rgba(255, 255, 255, 0.04);
+      --accent-glass: rgba(255, 255, 255, 0.12);
+      --elevated-glass: rgba(255, 255, 255, 0.15);
+      --text-primary: rgba(255, 255, 255, 0.98);
+      --text-secondary: rgba(255, 255, 255, 0.78);
+      --text-tertiary: rgba(255, 255, 255, 0.58);
+      --text-quaternary: rgba(255, 255, 255, 0.38);
+      --border-glass: rgba(255, 255, 255, 0.15);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --shadow-soft: rgba(0, 0, 0, 0.08);
+      --shadow-medium: rgba(0, 0, 0, 0.12);
+      --shadow-hard: rgba(0, 0, 0, 0.18);
+      --shadow-intense: rgba(0, 0, 0, 0.24);
+      --blur-light: blur(20px);
+      --blur-medium: blur(40px);
+      --blur-heavy: blur(80px);
+      --blur-intense: blur(120px);
+      --success: #34C759;
+      --warning: #FFD60A;
+      --error: #FF453A;
+      --info: #007AFF;
+      --brand-primary: #007aff;
+      --brand-secondary: #5856d6;
+      --brand-accent: #1d1d1f;
+    }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+      background: radial-gradient(ellipse at top, rgba(0, 0, 0, 0.8) 0%, #000000 100%),
+                  radial-gradient(ellipse at bottom right, rgba(0, 122, 255, 0.03) 0%, transparent 50%),
+                  radial-gradient(ellipse at bottom left, rgba(88, 86, 214, 0.02) 0%, transparent 50%),
+                  #000000;
+      background-attachment: fixed;
       min-height: 100vh;
-      color: #333;
+      color: var(--text-primary);
       overflow-x: hidden;
-    }
-
-    .header {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      padding: 20px 0;
-      text-align: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .header h1 {
-      color: white;
-      font-size: 2.5em;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-    }
-
-    .header p {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1.1em;
-      font-weight: 300;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 30px 20px;
-    }
-
-    .main-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 30px;
-      margin-top: 20px;
-    }
-
-    .photo-section {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      font-weight: 400;
+      line-height: 1.5;
+      font-feature-settings: 'cv11', 'ss01';
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       position: relative;
-      overflow: hidden;
     }
 
-    .photo-section::before {
+    body::before {
       content: '';
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #667eea, #764ba2);
-    }
-
-    .section-title {
-      font-size: 1.5em;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #2c3e50;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .icon {
-      width: 24px;
-      height: 24px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 0.8em;
-    }
-
-    .photo-display {
-      position: relative;
-      background: #f8f9fa;
-      border-radius: 15px;
-      overflow: hidden;
-      min-height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .photo-display img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-      gap: 10px;
-      margin-top: 20px;
-    }
-
-    .photo-thumbnail {
-      aspect-ratio: 1;
-      background: #f8f9fa;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-    }
-
-    .photo-thumbnail:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-
-    .photo-thumbnail.active {
-      border-color: #667eea;
-      transform: translateY(-2px);
-    }
-
-    .photo-thumbnail img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.1), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.08), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.06), transparent),
+        radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.04), transparent),
+        radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.1), transparent);
+      background-repeat: repeat;
+      background-size: 200px 100px;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    .analysis-section {
-      background: white;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-      position: relative;
-      overflow: hidden;
+    .glass-surface {
+      background: var(--primary-glass);
+      backdrop-filter: var(--blur-light);
+      -webkit-backdrop-filter: var(--blur-light);
+      border: 1px solid var(--border-glass);
+      box-shadow: 
+        0 8px 32px var(--shadow-soft),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.05);
     }
 
-    .analysis-section::before {
-      content: '';
-      position: absolute;
+    .glass-elevated {
+      background: var(--elevated-glass);
+      backdrop-filter: var(--blur-medium);
+      -webkit-backdrop-filter: var(--blur-medium);
+      border: 1px solid var(--border-glass);
+      box-shadow: 
+        0 20px 60px var(--shadow-medium),
+        0 8px 32px var(--shadow-soft),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-bar {
+      position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #11998e, #38ef7d);
+      z-index: 1000;
+      background: var(--secondary-glass);
+      backdrop-filter: var(--blur-intense);
+      -webkit-backdrop-filter: var(--blur-intense);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .loading-spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #667eea;
+    .nav-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--accent-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-glass);
+      box-shadow: 0 4px 16px var(--shadow-soft);
+    }
+
+    .brand-logo img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-name {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .brand-tagline {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: -0.005em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.005em;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
+    }
+
+    .status-pill.ready {
+      background: rgba(52, 199, 89, 0.12);
+      color: var(--success);
+      border-color: rgba(52, 199, 89, 0.2);
+    }
+
+    .status-pill.analyzing {
+      background: rgba(255, 214, 10, 0.12);
+      color: var(--warning);
+      border-color: rgba(255, 214, 10, 0.2);
+    }
+
+    .status-pill.error {
+      background: rgba(255, 69, 58, 0.12);
+      color: var(--error);
+      border-color: rgba(255, 69, 58, 0.2);
+    }
+
+    .status-spinner {
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255, 214, 10, 0.3);
+      border-top: 2px solid var(--warning);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -181,174 +220,562 @@
       100% { transform: rotate(360deg); }
     }
 
-    .price-comparison {
+    .main-container {
+      margin-top: 88px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 32px;
       display: grid;
-      gap: 15px;
-      margin-top: 20px;
+      grid-template-columns: 420px 1fr;
+      gap: 32px;
+      min-height: calc(100vh - 120px);
+      position: relative;
+      z-index: 10;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .panel {
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .panel:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 32px 80px var(--shadow-medium),
+        0 8px 32px var(--shadow-soft),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .panel-header {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .panel-subtitle {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: -0.005em;
+    }
+
+    .panel-content {
+      padding: 24px;
+    }
+
+    .photo-catalogue {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .photo-item {
+      aspect-ratio: 1;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--secondary-glass);
+      border: 2px solid transparent;
+      group: hover;
+    }
+
+    .photo-item:hover {
+      transform: scale(1.02);
+      border-color: var(--border-glass);
+      box-shadow: 0 8px 32px var(--shadow-soft);
+    }
+
+    .photo-item.active {
+      border-color: var(--info);
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+      transform: scale(1.02);
+    }
+
+    .photo-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: flex-end;
+      padding: 12px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .photo-item:hover .photo-overlay {
+      opacity: 1;
+    }
+
+    .photo-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .analysis-badge {
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .analysis-badge.complete {
+      background: var(--success);
+      color: white;
+    }
+
+    .analysis-badge.pending {
+      background: var(--warning);
+      color: white;
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .hero-section {
+      text-align: center;
+      padding: 64px 0;
+    }
+
+    .hero-title {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .hero-subtitle {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: -0.01em;
+      margin-bottom: 32px;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 32px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      color: var(--text-primary);
+      background: var(--accent-glass);
+      border: 1px solid var(--border-glass);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 48px var(--shadow-medium);
+      background: var(--elevated-glass);
+    }
+
+    .photo-display {
+      position: relative;
+      background: var(--secondary-glass);
+      border-radius: 24px;
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-glass);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .photo-display:hover {
+      background: var(--primary-glass);
+      transform: scale(1.005);
+    }
+
+    .photo-display img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px var(--shadow-medium);
+    }
+
+    .analysis-section {
+      display: grid;
+      gap: 24px;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
     }
 
     .price-card {
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      border-radius: 15px;
-      padding: 20px;
-      border-left: 4px solid #667eea;
-      transition: all 0.3s ease;
+      background: var(--secondary-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .price-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--brand-primary);
     }
 
     .price-card:hover {
-      transform: translateX(5px);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transform: translateY(-4px);
+      background: var(--primary-glass);
+      box-shadow: 0 20px 60px var(--shadow-medium);
     }
 
     .price-card h3 {
-      color: #2c3e50;
-      font-size: 1.2em;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
       margin-bottom: 8px;
     }
 
     .price-card .store {
-      color: #6c757d;
-      font-size: 0.9em;
-      margin-bottom: 5px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
     }
 
     .price-card .price {
-      font-size: 1.5em;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--success);
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .price-card .savings {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--warning);
+      background: rgba(255, 214, 10, 0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .recommendation-card {
+      background: var(--accent-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .recommendation-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--success);
+    }
+
+    .recommendation-card h3 {
+      font-size: 20px;
       font-weight: 700;
-      color: #28a745;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
     }
 
-    .recommendation {
-      background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-      border-radius: 15px;
-      padding: 20px;
-      margin-top: 20px;
-      border-left: 4px solid #e17055;
-    }
-
-    .recommendation h3 {
-      color: #2c3e50;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .recommendation p {
-      color: #2c3e50;
+    .recommendation-card p {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-secondary);
       line-height: 1.6;
+      letter-spacing: -0.005em;
     }
 
     .empty-state {
       text-align: center;
-      padding: 60px 20px;
-      color: #6c757d;
+      padding: 64px 32px;
+      color: var(--text-tertiary);
     }
 
-    .empty-state img {
-      width: 120px;
-      height: 120px;
-      margin-bottom: 20px;
-      opacity: 0.3;
+    .empty-icon {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 24px;
+      background: var(--secondary-glass);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      border: 1px solid var(--border-glass);
+      color: var(--text-quaternary);
     }
 
-    .empty-state h3 {
-      font-size: 1.3em;
-      margin-bottom: 10px;
+    .empty-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      letter-spacing: -0.02em;
     }
 
-    .empty-state p {
-      font-size: 1em;
+    .empty-subtitle {
+      font-size: 16px;
       line-height: 1.6;
-    }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8em;
+      max-width: 400px;
+      margin: 0 auto;
       font-weight: 500;
-      margin-left: 10px;
-    }
-
-    .status-badge.analyzing {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    .status-badge.complete {
-      background: #d4edda;
-      color: #155724;
     }
 
     .pulse {
-      animation: pulse 2s ease-in-out infinite alternate;
+      animation: pulse 2.5s ease-in-out infinite;
     }
 
     @keyframes pulse {
-      from { opacity: 0.6; }
-      to { opacity: 1; }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
     }
 
-    @media (max-width: 768px) {
-      .main-content {
+    .shimmer-effect {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .shimmer-effect::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+      animation: shimmer 2.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    @media (max-width: 1200px) {
+      .main-container {
+        grid-template-columns: 360px 1fr;
+        gap: 24px;
+        padding: 24px;
+      }
+      
+      .hero-title {
+        font-size: 36px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .main-container {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 16px;
+        margin-top: 80px;
       }
       
-      .header h1 {
-        font-size: 2em;
+      .sidebar {
+        order: 2;
       }
       
-      .photo-section, .analysis-section {
+      .main-content {
+        order: 1;
+      }
+      
+      .nav-content {
+        padding: 12px 24px;
+      }
+      
+      .hero-title {
+        font-size: 32px;
+      }
+      
+      .hero-subtitle {
+        font-size: 18px;
+      }
+      
+      .price-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .photo-catalogue {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 12px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .main-container {
+        padding: 16px;
+      }
+      
+      .nav-content {
+        padding: 12px 16px;
+      }
+      
+      .photo-catalogue {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      }
+      
+      .hero-title {
+        font-size: 28px;
+      }
+      
+      .panel-content {
+        padding: 16px;
+      }
+      
+      .analysis-section {
+        gap: 16px;
+      }
+      
+      .price-card {
         padding: 20px;
+      }
+      
+      .recommendation-card {
+        padding: 24px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>💰 PricePal</h1>
-    <p>Smart Price Comparison with AI-Powered Analysis</p>
-  </div>
+  <nav class="nav-bar">
+    <div class="nav-content">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <img src="/assets/PricePalLogo.png" alt="PricePal">
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">PricePal</div>
+          <div class="brand-tagline">Intelligent Price Discovery</div>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <div id="global-status" class="status-pill ready">
+          Ready
+        </div>
+      </div>
+    </div>
+  </nav>
 
-  <div class="container">
-    <div class="main-content">
-      <!-- Photo Section -->
-      <div class="photo-section">
-        <h2 class="section-title">
-          <div class="icon">📸</div>
-          Recent Photos
-        </h2>
-        
-        <div id="photo-display" class="photo-display">
-          <div class="empty-state">
-            <div style="font-size: 4em; margin-bottom: 20px;">📷</div>
-            <h3>No photos yet</h3>
-            <p>Take a photo using your Mentra glasses by pressing the right button to get started!</p>
+  <div class="main-container">
+    <div class="sidebar">
+      <div class="panel glass-elevated">
+        <div class="panel-header">
+          <div class="panel-title">Photo Catalogue</div>
+          <div class="panel-subtitle">Smart visual analysis</div>
+        </div>
+        <div class="panel-content">
+          <div id="photo-catalogue" class="photo-catalogue">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </div>
+              <div class="empty-title">No Photos</div>
+              <div class="empty-subtitle">Take photos with your Mentra glasses to begin intelligent price analysis</div>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
 
-        <div id="photo-grid" class="photo-grid" style="display: none;">
-          <!-- Photo thumbnails will be inserted here -->
+    <div class="main-content">
+      <div id="main-display">
+        <div class="hero-section">
+          <div class="hero-title">Discover Better Prices</div>
+          <div class="hero-subtitle">
+            AI-powered price intelligence at the speed of light
+          </div>
+          <div class="cta-button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            Take Photo to Start
+          </div>
         </div>
       </div>
 
-      <!-- Analysis Section -->
-      <div class="analysis-section">
-        <h2 class="section-title">
-          <div class="icon">🧠</div>
-          AI Analysis
-          <span id="analysis-status" class="status-badge analyzing" style="display: none;">
-            <span class="loading-spinner"></span> Analyzing...
-          </span>
-        </h2>
+      <div id="analysis-section" class="analysis-section" style="display: none;">
+        <div class="panel glass-elevated">
+          <div class="panel-header">
+            <div class="panel-title">Market Analysis</div>
+            <div class="panel-subtitle">Real-time price intelligence</div>
+          </div>
+          <div class="panel-content">
+            <div id="price-comparison" class="price-grid">
+              <!-- Price cards will be inserted here -->
+            </div>
+          </div>
+        </div>
 
-        <div id="analysis-content">
-          <div class="empty-state">
-            <div style="font-size: 4em; margin-bottom: 20px;">🔍</div>
-            <h3>Ready to analyze</h3>
-            <p>Take a photo to get AI-powered price comparisons and recommendations!</p>
+        <div id="recommendation-section" style="display: none;">
+          <div class="recommendation-card">
+            <h3>Strategic Recommendation</h3>
+            <p id="recommendation-text">
+              <!-- Recommendation will be inserted here -->
+            </p>
           </div>
         </div>
       </div>
@@ -358,22 +785,155 @@
   <script>
     let currentPhotos = [];
     let currentPhotoIndex = -1;
-    let currentAnalysis = null;
+    let analysisCache = new Map();
 
-    // Check for new photos and update display
+         // Enhanced AI parsing with multiple strategies
+     function parseAIResponse(analysisText) {
+       console.log(`[FRONTEND] Parsing AI response (length: ${analysisText.length}):`, analysisText);
+       
+       const parsed = {
+         products: [],
+         recommendation: '',
+         summary: '',
+         originalText: analysisText
+       };
+
+       try {
+        // Strategy 1: Look for JSON blocks
+        const jsonMatches = analysisText.match(/```json\s*([\s\S]*?)\s*```/g) || 
+                           analysisText.match(/\[[\s\S]*?\]/g);
+        
+        console.log(`[FRONTEND] Found ${jsonMatches?.length || 0} JSON matches`);
+        
+        if (jsonMatches) {
+          for (const match of jsonMatches) {
+            try {
+              const cleanJson = match.replace(/```json|```/g, '').trim();
+              console.log(`[FRONTEND] Attempting to parse JSON:`, cleanJson);
+              const data = JSON.parse(cleanJson);
+              if (Array.isArray(data)) {
+                                parsed.products = data.map(item => {
+                  // Handle both numeric and string prices
+                  const priceValue = item.ProductPrice || item['Product Price'] || item.price || 0;
+                  let price = 0;
+                  let priceDisplay = '';
+                  
+                  if (typeof priceValue === 'number') {
+                    price = priceValue;
+                    priceDisplay = `$${price.toFixed(2)}`;
+                  } else {
+                    // Handle string prices like "$4.50 - $6.00 (12 pack)"
+                    const priceStr = priceValue.toString();
+                    const priceMatch = priceStr.match(/\$?(\d+(?:\.\d{2})?)/);
+                    if (priceMatch) {
+                      price = parseFloat(priceMatch[1]);
+                    }
+                    priceDisplay = priceStr.includes('$') ? priceStr : `$${priceStr}`;
+                  }
+                  
+                  return {
+                    name: item.ProductName || item['Product Name'] || item.name || 'Unknown Product',
+                    store: item.ProductStore || item['Product Store'] || item.store || 'Unknown Store',
+                    price: price,
+                    priceDisplay: priceDisplay,
+                    originalPrice: item.originalPrice || null,
+                    savings: item.savings || null,
+                    url: item.url || null,
+                    rating: item.rating || null
+                  };
+                });
+                 console.log(`[FRONTEND] Successfully parsed ${parsed.products.length} products from JSON`);
+                }
+              } catch (e) {
+                console.warn('JSON parsing failed:', e);
+              }
+          }
+        }
+
+        // Strategy 2: Extract recommendation
+        const lines = analysisText.split('\n');
+        const recommendationKeywords = ['recommendation', 'should', 'buy', 'consider', 'suggest', 'advice'];
+        
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i].toLowerCase();
+          if (recommendationKeywords.some(keyword => line.includes(keyword))) {
+            const startIdx = i;
+            let endIdx = i;
+            
+            // Find the end of the recommendation section
+            while (endIdx < lines.length - 1 && 
+                   !lines[endIdx + 1].match(/^\d+\.|\*\*|\#\#|```/)) {
+              endIdx++;
+            }
+            
+            parsed.recommendation = lines.slice(startIdx, endIdx + 1)
+              .join(' ')
+              .replace(/^(recommendation|conclusion)[:\s]*/i, '')
+              .trim();
+            break;
+          }
+        }
+
+        // Strategy 3: Extract structured data using regex
+        if (parsed.products.length === 0) {
+          const productPattern = /(?:product|item)[:\s]*([^\n]+)[\s\S]*?(?:store|retailer)[:\s]*([^\n]+)[\s\S]*?(?:price|cost)[:\s]*\$?(\d+(?:\.\d{2})?)/gi;
+          let match;
+          
+          while ((match = productPattern.exec(analysisText)) !== null) {
+            parsed.products.push({
+              name: match[1].trim(),
+              store: match[2].trim(),
+              price: parseFloat(match[3]),
+              originalPrice: null,
+              savings: null
+            });
+          }
+        }
+
+        // Strategy 4: Extract price information from text
+        const pricePattern = /\$(\d+(?:\.\d{2})?)/g;
+        const storePattern = /(amazon|walmart|best buy|target|costco|ebay|newegg)/gi;
+        
+        const prices = [...analysisText.matchAll(pricePattern)].map(m => parseFloat(m[1]));
+        const stores = [...analysisText.matchAll(storePattern)].map(m => m[1]);
+        
+        if (prices.length > 0 && parsed.products.length === 0) {
+          for (let i = 0; i < Math.min(prices.length, 3); i++) {
+            parsed.products.push({
+              name: 'Product Alternative',
+              store: stores[i] || 'Online Store',
+              price: prices[i],
+              originalPrice: null,
+              savings: null
+            });
+          }
+        }
+
+        // Generate summary
+        if (parsed.products.length > 0) {
+          const avgPrice = parsed.products.reduce((sum, p) => sum + p.price, 0) / parsed.products.length;
+          const minPrice = Math.min(...parsed.products.map(p => p.price));
+          const maxPrice = Math.max(...parsed.products.map(p => p.price));
+          
+          parsed.summary = `Found ${parsed.products.length} alternatives ranging from $${minPrice.toFixed(2)} to $${maxPrice.toFixed(2)}`;
+        }
+
+             } catch (error) {
+         console.error('[FRONTEND] Error parsing AI response:', error);
+       }
+
+       console.log(`[FRONTEND] Parsing complete. Found ${parsed.products.length} products, recommendation: ${!!parsed.recommendation}`);
+       return parsed;
+     }
+
+    // Enhanced photo management
     async function checkForPhotos() {
       try {
         const response = await fetch('/api/photos');
         
         if (!response.ok) {
           if (response.status === 401) {
-            document.getElementById('photo-display').innerHTML = `
-              <div class="empty-state">
-                <div style="font-size: 4em; margin-bottom: 20px;">🔒</div>
-                <h3>Authentication Required</h3>
-                <p>Please open this page from the MentraOS app</p>
-              </div>
-            `;
+            showEmptyState('Authentication Required', 'Please open this page from the MentraOS app');
             return;
           }
           throw new Error('Failed to fetch photos');
@@ -383,230 +943,283 @@
         
         if (data.photos && data.photos.length > 0) {
           currentPhotos = data.photos;
-          updatePhotoDisplay();
-          updatePhotoGrid();
+          updatePhotoCatalogue();
           
-          // Check for analysis of the latest photo
-          if (currentPhotos.length > 0) {
-            const latestPhoto = currentPhotos[currentPhotos.length - 1];
-            if (currentPhotoIndex === -1) {
-              currentPhotoIndex = currentPhotos.length - 1;
-            }
-            checkForAnalysis(latestPhoto.requestId);
+          // Auto-select latest photo if none selected
+          if (currentPhotoIndex === -1) {
+            selectPhoto(currentPhotos.length - 1);
           }
+          
+          // Check for analysis updates
+          checkForAnalysisUpdates();
         } else {
-          // No photos yet
-          document.getElementById('photo-display').innerHTML = `
-            <div class="empty-state">
-              <div style="font-size: 4em; margin-bottom: 20px;">📷</div>
-              <h3>No photos yet</h3>
-              <p>Take a photo using your Mentra glasses by pressing the right button to get started!</p>
-            </div>
-          `;
-          document.getElementById('photo-grid').style.display = 'none';
+          showEmptyState('No Photos', 'Take photos with your Mentra glasses to begin intelligent price analysis');
         }
       } catch (error) {
         console.error('Error checking for photos:', error);
-        document.getElementById('photo-display').innerHTML = `
-          <div class="empty-state">
-            <div style="font-size: 4em; margin-bottom: 20px;">⚠️</div>
-            <h3>Error loading photos</h3>
-            <p>Please refresh the page to try again</p>
-          </div>
-        `;
+        showEmptyState('Connection Error', 'Unable to connect to the service. Please check your connection.');
       }
     }
 
-    function updatePhotoDisplay() {
-      if (currentPhotos.length === 0) return;
+    function updatePhotoCatalogue() {
+      const catalogue = document.getElementById('photo-catalogue');
       
-      const photoIndex = currentPhotoIndex >= 0 ? currentPhotoIndex : currentPhotos.length - 1;
-      const photo = currentPhotos[photoIndex];
-      
-      document.getElementById('photo-display').innerHTML = `
-        <img src="/api/photo/${photo.requestId}" alt="Product Photo" />
-      `;
-    }
-
-    function updatePhotoGrid() {
-      const grid = document.getElementById('photo-grid');
-      
-      if (currentPhotos.length <= 1) {
-        grid.style.display = 'none';
+      if (currentPhotos.length === 0) {
+        showEmptyState('No Photos', 'Take photos with your Mentra glasses to begin intelligent price analysis');
         return;
       }
-      
-      grid.style.display = 'grid';
-      grid.innerHTML = currentPhotos.map((photo, index) => `
-        <div class="photo-thumbnail ${index === currentPhotoIndex ? 'active' : ''}" 
+
+      catalogue.innerHTML = currentPhotos.map((photo, index) => `
+        <div class="photo-item ${index === currentPhotoIndex ? 'active' : ''}" 
              onclick="selectPhoto(${index})" 
-             title="Photo ${index + 1}">
-          <img src="/api/photo/${photo.requestId}" alt="Thumbnail ${index + 1}" />
+             data-index="${index}">
+          <img src="/api/photo/${photo.requestId}" alt="Product ${index + 1}" />
+          <div class="photo-overlay">
+            <div class="photo-meta">
+              <span class="analysis-badge ${photo.hasAnalysis ? 'complete' : 'pending'}">
+                ${photo.hasAnalysis ? 'Analyzed' : 'Processing'}
+              </span>
+            </div>
+          </div>
         </div>
       `).join('');
     }
 
     function selectPhoto(index) {
       currentPhotoIndex = index;
-      updatePhotoDisplay();
-      updatePhotoGrid();
+      updatePhotoCatalogue();
+      displaySelectedPhoto();
       
       const photo = currentPhotos[index];
-      checkForAnalysis(photo.requestId);
-    }
-
-    async function checkForAnalysis(requestId) {
-      try {
-        // Show loading state
-        document.getElementById('analysis-status').style.display = 'inline-block';
-        document.getElementById('analysis-status').className = 'status-badge analyzing pulse';
-        
-        const response = await fetch(`/api/analysis/${requestId}`);
-        
-        if (response.status === 404) {
-          // Analysis not ready yet, check again in 2 seconds
-          setTimeout(() => checkForAnalysis(requestId), 2000);
-          return;
-        }
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch analysis');
-        }
-
-        const data = await response.json();
-        displayAnalysis(data.analysis);
-        
-        // Update status
-        document.getElementById('analysis-status').style.display = 'inline-block';
-        document.getElementById('analysis-status').className = 'status-badge complete';
-        document.getElementById('analysis-status').innerHTML = '✅ Complete';
-        
-      } catch (error) {
-        console.error('Error checking for analysis:', error);
-        document.getElementById('analysis-content').innerHTML = `
-          <div class="empty-state">
-            <div style="font-size: 4em; margin-bottom: 20px;">❌</div>
-            <h3>Analysis Error</h3>
-            <p>Failed to load AI analysis. Please try again.</p>
-          </div>
-        `;
-        
-        document.getElementById('analysis-status').style.display = 'inline-block';
-        document.getElementById('analysis-status').className = 'status-badge';
-        document.getElementById('analysis-status').style.background = '#f8d7da';
-        document.getElementById('analysis-status').style.color = '#721c24';
-        document.getElementById('analysis-status').innerHTML = '❌ Error';
+      if (photo.hasAnalysis) {
+        loadAnalysis(photo.requestId);
+      } else {
+        showAnalysisLoading();
+        checkForAnalysis(photo.requestId);
       }
     }
 
-    function displayAnalysis(analysisText) {
-      try {
-        // Try to parse the analysis for structured data
-        const lines = analysisText.split('\n');
-        let jsonStart = -1;
-        let jsonEnd = -1;
-        let recommendation = '';
-        
-        // Find JSON block
-        for (let i = 0; i < lines.length; i++) {
-          if (lines[i].includes('```json') || lines[i].includes('[')) {
-            jsonStart = i;
-          }
-          if (lines[i].includes('```') && jsonStart !== -1 && i > jsonStart) {
-            jsonEnd = i;
-            break;
-          }
-          if (lines[i].includes(']') && jsonStart !== -1) {
-            jsonEnd = i + 1;
-            break;
-          }
-        }
-        
-        // Extract recommendation
-        const recommendationStart = lines.findIndex(line => 
-          line.toLowerCase().includes('recommendation') || 
-          line.toLowerCase().includes('should') ||
-          line.toLowerCase().includes('buy')
-        );
-        
-        if (recommendationStart !== -1) {
-          recommendation = lines.slice(recommendationStart).join(' ').trim();
-        }
-        
-        let priceCards = '';
-        
-        if (jsonStart !== -1 && jsonEnd !== -1) {
+    function displaySelectedPhoto() {
+      const mainDisplay = document.getElementById('main-display');
+      const photo = currentPhotos[currentPhotoIndex];
+      
+      mainDisplay.innerHTML = `
+        <div class="photo-display">
+          <img src="/api/photo/${photo.requestId}" alt="Selected Product" />
+        </div>
+      `;
+    }
+
+    function showAnalysisLoading() {
+      const globalStatus = document.getElementById('global-status');
+      globalStatus.className = 'status-pill analyzing pulse';
+      globalStatus.innerHTML = '<div class="status-spinner"></div> Analyzing...';
+      
+      const analysisSection = document.getElementById('analysis-section');
+      analysisSection.style.display = 'flex';
+      analysisSection.innerHTML = `
+        <div class="panel glass-elevated">
+          <div class="panel-header">
+            <div class="panel-title">Analyzing Product</div>
+            <div class="panel-subtitle">Processing with AI...</div>
+          </div>
+          <div class="panel-content">
+            <div class="empty-state">
+              <div class="empty-icon pulse">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27,6.96 12,12.01 20.73,6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+              </div>
+              <div class="empty-title">AI Analysis in Progress</div>
+              <div class="empty-subtitle">Our advanced algorithms are analyzing your product and comparing market prices</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+         async function checkForAnalysis(requestId) {
+       try {
+         console.log(`[FRONTEND] Checking for analysis for requestId: ${requestId}`);
+         const response = await fetch(`/api/analysis/${requestId}`);
+         
+         console.log(`[FRONTEND] Analysis response status: ${response.status}`);
+         
+         if (response.status === 404) {
+           console.log(`[FRONTEND] Analysis not ready yet for ${requestId}, retrying in 2s`);
+           setTimeout(() => checkForAnalysis(requestId), 2000);
+           return;
+         }
+         
+         if (!response.ok) {
+           const errorText = await response.text();
+           console.error(`[FRONTEND] Analysis request failed: ${response.status} - ${errorText}`);
+           throw new Error(`Failed to fetch analysis: ${response.status}`);
+         }
+
+         const data = await response.json();
+         console.log(`[FRONTEND] Received analysis data:`, data);
+         
+         if (!data.analysis) {
+           console.error('[FRONTEND] No analysis in response data');
+           throw new Error('No analysis data received');
+         }
+         
+         analysisCache.set(requestId, data.analysis);
+         displayAnalysis(data.analysis);
+         
+       } catch (error) {
+         console.error('[FRONTEND] Error checking for analysis:', error);
+         showAnalysisError(error.message || error.toString());
+       }
+     }
+
+         function displayAnalysis(analysisText) {
+       console.log(`[FRONTEND] Displaying analysis:`, analysisText);
+       
+       const parsed = parseAIResponse(analysisText);
+       console.log(`[FRONTEND] Parsed analysis:`, parsed);
+       
+       // Show the analysis section with proper vertical stacking
+       const analysisSection = document.getElementById('analysis-section');
+       analysisSection.style.display = 'block';
+       
+       if (parsed.products.length > 0) {
+         console.log(`[FRONTEND] Found ${parsed.products.length} products to display`);
+         const priceCards = parsed.products.map(product => `
+           <div class="price-card shimmer-effect">
+             <h3>${product.name}</h3>
+             <div class="store">${product.store}</div>
+             <div class="price">${product.priceDisplay}</div>
+             ${product.savings ? `<div class="savings">Save $${product.savings}</div>` : ''}
+           </div>
+         `).join('');
+         
+         document.getElementById('price-comparison').innerHTML = priceCards;
+       } else {
+         console.log(`[FRONTEND] No structured products found, showing clean analysis`);
+         // Show a clean version of the analysis without raw JSON
+         const cleanText = analysisText.replace(/```json[\s\S]*?```/g, '').replace(/\n+/g, '\n').trim();
+         document.getElementById('price-comparison').innerHTML = `
+           <div class="price-card">
+             <h3>Analysis Complete</h3>
+             <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${cleanText}</p>
+           </div>
+         `;
+       }
+       
+       if (parsed.recommendation) {
+         console.log(`[FRONTEND] Showing recommendation: ${parsed.recommendation}`);
+         document.getElementById('recommendation-text').textContent = parsed.recommendation;
+         document.getElementById('recommendation-section').style.display = 'block';
+       } else {
+         console.log(`[FRONTEND] No recommendation found`);
+         document.getElementById('recommendation-section').style.display = 'none';
+       }
+       
+       // Update global status
+       const globalStatus = document.getElementById('global-status');
+       globalStatus.className = 'status-pill ready';
+       globalStatus.innerHTML = 'Analysis Complete';
+     }
+
+         function showAnalysisError(errorMessage = 'Unknown error') {
+       console.log(`[FRONTEND] Showing analysis error: ${errorMessage}`);
+       
+       const globalStatus = document.getElementById('global-status');
+       globalStatus.className = 'status-pill error';
+       globalStatus.innerHTML = 'Analysis Failed';
+       
+       const analysisSection = document.getElementById('analysis-section');
+       analysisSection.style.display = 'flex';
+       analysisSection.innerHTML = `
+         <div class="panel glass-elevated">
+           <div class="panel-header">
+             <div class="panel-title">Analysis Error</div>
+             <div class="panel-subtitle">Unable to complete analysis</div>
+           </div>
+           <div class="panel-content">
+             <div class="empty-state">
+               <div class="empty-icon">
+                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                   <circle cx="12" cy="12" r="10"/>
+                   <line x1="15" y1="9" x2="9" y2="15"/>
+                   <line x1="9" y1="9" x2="15" y2="15"/>
+                 </svg>
+               </div>
+               <div class="empty-title">Analysis Failed</div>
+               <div class="empty-subtitle">
+                 Please try taking another photo or check your connection<br>
+                 <small style="color: var(--text-quaternary); margin-top: 8px; display: block;">
+                   Error: ${errorMessage}
+                 </small>
+               </div>
+             </div>
+           </div>
+         </div>
+       `;
+     }
+
+    function showEmptyState(title, subtitle) {
+      const catalogue = document.getElementById('photo-catalogue');
+      catalogue.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <div class="empty-title">${title}</div>
+          <div class="empty-subtitle">${subtitle}</div>
+        </div>
+      `;
+    }
+
+    async function checkForAnalysisUpdates() {
+      for (const photo of currentPhotos) {
+        if (photo.hasAnalysis && !analysisCache.has(photo.requestId)) {
           try {
-            const jsonText = lines.slice(jsonStart, jsonEnd).join('\n')
-              .replace('```json', '').replace('```', '').trim();
-            
-            let alternatives;
-            if (jsonText.startsWith('[')) {
-              alternatives = JSON.parse(jsonText);
-            } else {
-              // Try to find JSON array in the text
-              const match = jsonText.match(/\[[\s\S]*\]/);
-              if (match) {
-                alternatives = JSON.parse(match[0]);
-              }
+            const response = await fetch(`/api/analysis/${photo.requestId}`);
+            if (response.ok) {
+              const data = await response.json();
+              analysisCache.set(photo.requestId, data.analysis);
             }
-            
-            if (alternatives && Array.isArray(alternatives)) {
-              priceCards = alternatives.map(alt => `
-                <div class="price-card">
-                  <h3>${alt.ProductName || alt['Product Name'] || 'Unknown Product'}</h3>
-                  <div class="store">${alt.ProductStore || alt['Product Store'] || 'Unknown Store'}</div>
-                  <div class="price">$${alt.ProductPrice || alt['Product Price'] || 'N/A'}</div>
-                </div>
-              `).join('');
-            }
-          } catch (e) {
-            console.error('Error parsing JSON:', e);
+          } catch (error) {
+            console.error('Error fetching analysis:', error);
           }
         }
-        
-        // If no structured data found, show raw analysis
-        if (!priceCards) {
-          priceCards = `
-            <div class="price-card">
-              <h3>Analysis Results</h3>
-              <p style="white-space: pre-wrap; line-height: 1.6;">${analysisText}</p>
-            </div>
-          `;
-        }
-        
-        let recommendationHtml = '';
-        if (recommendation) {
-          recommendationHtml = `
-            <div class="recommendation">
-              <h3>💡 Recommendation</h3>
-              <p>${recommendation}</p>
-            </div>
-          `;
-        }
-        
-        document.getElementById('analysis-content').innerHTML = `
-          <div class="price-comparison">
-            ${priceCards}
-          </div>
-          ${recommendationHtml}
-        `;
-        
-      } catch (error) {
-        console.error('Error displaying analysis:', error);
-        // Fallback to raw text display
-        document.getElementById('analysis-content').innerHTML = `
-          <div class="price-card">
-            <h3>Analysis Results</h3>
-            <p style="white-space: pre-wrap; line-height: 1.6;">${analysisText}</p>
-          </div>
-        `;
       }
     }
 
-    // Check for photos every 1 second
+    async function loadAnalysis(requestId) {
+      if (analysisCache.has(requestId)) {
+        displayAnalysis(analysisCache.get(requestId));
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/analysis/${requestId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.analysis) {
+            analysisCache.set(requestId, data.analysis);
+            displayAnalysis(data.analysis);
+          }
+        } else {
+          console.log('Analysis not available yet, will retry automatically');
+        }
+      } catch (error) {
+        console.error('Error loading analysis:', error);
+      }
+    }
+
+    // Initialize application
     checkForPhotos();
     setInterval(checkForPhotos, 1000);
   </script>
 </body>
+</html>
 </html>
