@@ -102,6 +102,15 @@ class ExampleMentraOSApp extends AppServer {
             size: photo.size,
             bufferLength: photo.buffer.length
           });
+          
+          // Play camera shutter sound confirmation
+          try {
+            await session.audio.speak("Photo taken");
+            console.log(`[AUDIO] Camera confirmation sound played for user ${userId}`);
+          } catch (error) {
+            console.error(`[AUDIO] Error playing camera confirmation sound for user ${userId}:`, error);
+          }
+          
           this.cachePhoto(photo, userId);
         } catch (error) {
           console.error(`[CAMERA] Error taking photo for user ${userId}:`, error);
@@ -132,6 +141,14 @@ class ExampleMentraOSApp extends AppServer {
             size: photo.size,
             bufferLength: photo.buffer.length
           });
+          
+          // Play camera shutter sound confirmation
+          try {
+            await session.audio.speak("Photo taken");
+            console.log(`[AUDIO] Camera confirmation sound played for streaming photo for user ${userId}`);
+          } catch (error) {
+            console.error(`[AUDIO] Error playing camera confirmation sound for streaming photo for user ${userId}:`, error);
+          }
 
           // set the next photo time to now, since we are ready to take another photo
           this.nextPhotoTime.set(userId, Date.now());
