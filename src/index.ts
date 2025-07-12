@@ -201,6 +201,8 @@ Only include products with all fields populated.
 
 2. Provide a concise recommendation about whether to buy the product: e.g. how are prices of comparable products at different stores, if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.
 
+In addition, mention potential Coupons and Discounts that the user can use to save money for this product or similar products at other stores.
+
 Analyze this product image and provide alternatives with current pricing.`;
 
       // Create the content for the API call
