@@ -598,6 +598,50 @@
       overflow: hidden;
     }
 
+    .action-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      color: var(--text-primary);
+      background: var(--accent-glass);
+      border: 1px solid var(--border-glass);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .action-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px var(--shadow-soft);
+      background: var(--elevated-glass);
+    }
+
+    .action-button:active {
+      transform: translateY(0);
+    }
+
+    .action-button.secondary {
+      background: var(--secondary-glass);
+      color: var(--text-secondary);
+    }
+
+    .action-button.secondary:hover {
+      background: var(--primary-glass);
+      color: var(--text-primary);
+    }
+
+    .action-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .recommendation-card::before {
       content: '';
       position: absolute;
@@ -823,6 +867,38 @@
               </div>
               <div class="empty-title">No Photos</div>
               <div class="empty-subtitle">Take photos with your Mentra glasses to begin intelligent price analysis</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Debug Panel -->
+      <div class="panel glass-elevated" style="margin-top: 16px;">
+        <div class="panel-header">
+          <div class="panel-title">Audio Debug</div>
+          <div class="panel-subtitle">Test audio functionality</div>
+        </div>
+        <div class="panel-content">
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button id="test-audio-btn" class="action-button" style="width: 100%;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+              </svg>
+              Test Audio Playback
+            </button>
+            <button id="speak-analysis-btn" class="action-button secondary" style="width: 100%;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="8" y1="23" x2="16" y2="23"/>
+              </svg>
+              Speak Latest Analysis
+            </button>
+            <div id="audio-status" class="status-pill ready" style="margin-top: 8px;">
+              Ready
             </div>
           </div>
         </div>
@@ -1332,8 +1408,94 @@
       }, 100);
     }
 
+    // Audio debug functionality
+    function initializeAudioDebug() {
+      const testAudioBtn = document.getElementById('test-audio-btn');
+      const speakAnalysisBtn = document.getElementById('speak-analysis-btn');
+      const audioStatus = document.getElementById('audio-status');
+
+      if (testAudioBtn) {
+        testAudioBtn.addEventListener('click', async () => {
+          try {
+            audioStatus.className = 'status-pill pending';
+            audioStatus.innerHTML = 'Testing Audio...';
+            testAudioBtn.disabled = true;
+
+            const response = await fetch('/api/play-test-audio', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+              audioStatus.className = 'status-pill ready';
+              audioStatus.innerHTML = 'Test Audio Played';
+              console.log('[FRONTEND] Test audio played successfully');
+            } else {
+              audioStatus.className = 'status-pill error';
+              audioStatus.innerHTML = 'Test Failed';
+              console.error('[FRONTEND] Test audio failed:', data.error);
+            }
+          } catch (error) {
+            audioStatus.className = 'status-pill error';
+            audioStatus.innerHTML = 'Test Failed';
+            console.error('[FRONTEND] Test audio error:', error);
+          } finally {
+            testAudioBtn.disabled = false;
+            setTimeout(() => {
+              audioStatus.className = 'status-pill ready';
+              audioStatus.innerHTML = 'Ready';
+            }, 3000);
+          }
+        });
+      }
+
+      if (speakAnalysisBtn) {
+        speakAnalysisBtn.addEventListener('click', async () => {
+          try {
+            audioStatus.className = 'status-pill pending';
+            audioStatus.innerHTML = 'Speaking Analysis...';
+            speakAnalysisBtn.disabled = true;
+
+            const response = await fetch('/api/speak-analysis', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            const data = await response.json();
+            
+            if (response.ok && data.success) {
+              audioStatus.className = 'status-pill ready';
+              audioStatus.innerHTML = 'Analysis Spoken';
+              console.log('[FRONTEND] Analysis spoken successfully:', data.first50Chars);
+            } else {
+              audioStatus.className = 'status-pill error';
+              audioStatus.innerHTML = 'Speech Failed';
+              console.error('[FRONTEND] Speech failed:', data.error);
+            }
+          } catch (error) {
+            audioStatus.className = 'status-pill error';
+            audioStatus.innerHTML = 'Speech Failed';
+            console.error('[FRONTEND] Speech error:', error);
+          } finally {
+            speakAnalysisBtn.disabled = false;
+            setTimeout(() => {
+              audioStatus.className = 'status-pill ready';
+              audioStatus.innerHTML = 'Ready';
+            }, 3000);
+          }
+        });
+      }
+    }
+
     // Initialize application
     initializeTheme();
+    initializeAudioDebug();
     checkForPhotos();
     setInterval(checkForPhotos, 1000);
   </script>
