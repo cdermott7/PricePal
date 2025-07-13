@@ -195,6 +195,8 @@ Product Name
 Product Store
 Product Price
 Product URL
+Product Image URL
+Product store Image URL (Clearbit)
 
 Only include products with all fields populated.
 
