@@ -5,7 +5,8 @@
   "scripts": {
     "start": "bun src/index.ts",
     "dev": "bun --hot src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-tts": "bun test-elevenlabs.ts"
   },
   "author": "",
   "license": "ISC",
