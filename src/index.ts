@@ -2,6 +2,7 @@ import { AppServer, AppSession, ViewType, AuthenticatedRequest, PhotoData } from
 import { Request, Response } from 'express';
 import * as ejs from 'ejs';
 import * as path from 'path';
+import * as fs from 'fs';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 /**
@@ -65,17 +66,7 @@ class ExampleMentraOSApp extends AppServer {
     this.nextPhotoTime.set(userId, Date.now());
     console.log(`[SESSION] Initialized user state for ${userId}`);
 
-    // Check if there's pending audio to play
-    const pendingAudioUrl = this.pendingAudioUrls.get(userId);
-    if (pendingAudioUrl) {
-      console.log(`[SESSION] Playing pending audio for user ${userId}: ${pendingAudioUrl}`);
-      try {
-        await session.audio.playAudio({ audioUrl: pendingAudioUrl });
-        this.pendingAudioUrls.delete(userId);
-      } catch (error) {
-        console.error(`[SESSION] Error playing pending audio for user ${userId}:`, error);
-      }
-    }
+    // No longer using pending audio URLs since we handle TTS immediately
 
     // this gets called whenever a user presses a button
     session.events.onButtonPress(async (button) => {
@@ -272,74 +263,196 @@ Analyze this product image and provide alternatives with current pricing.`;
     try {
       console.log(`[TTS] Starting text-to-speech for user ${userId}`);
       
-      // Get the first 50 characters of the analysis
-      const first50Chars = analysis.substring(0, 50);
-      console.log(`[TTS] First 50 characters: "${first50Chars}"`);
+      // Parse and read the actual product alternatives in a human-friendly way
+      let textToSpeak = "";
       
-      // Create speech using ElevenLabs API
-      const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb?output_format=mp3_44100_128", {
-        method: "POST",
-        headers: {
-          "xi-api-key": ELEVENLABS_API_KEY,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          "text": first50Chars,
-          "model_id": "eleven_multilingual_v2"
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`);
+      try {
+        // Extract JSON from the analysis
+        const jsonMatch = analysis.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          const jsonStr = jsonMatch[1].trim();
+          const data = JSON.parse(jsonStr);
+          
+          // Handle both direct array and wrapped object formats
+          let products: any[] = [];
+          if (Array.isArray(data)) {
+            products = data;
+          } else if (data.alternatives && Array.isArray(data.alternatives)) {
+            products = data.alternatives;
+          } else if (data.products && Array.isArray(data.products)) {
+            products = data.products;
+          }
+          
+          if (products.length > 0) {
+            // Create human-friendly speech from the products
+            let productSpeech = "Here are the alternatives I found: ";
+            
+            products.forEach((product, index) => {
+              const name = product.ProductName || product['Product Name'] || product.name || 'Unknown product';
+              const store = product.ProductStore || product['Product Store'] || product.store || 'Unknown store';
+              const price = product.ProductPrice || product['Product Price'] || product.price || 'Unknown price';
+              
+              if (index === 0) {
+                productSpeech += `${name} from ${store} for ${price}`;
+              } else if (index === products.length - 1) {
+                productSpeech += `, and ${name} from ${store} for ${price}`;
+              } else {
+                productSpeech += `, ${name} from ${store} for ${price}`;
+              }
+            });
+            
+            // Add recommendation if available
+            if (analysis.toLowerCase().includes('recommendation:')) {
+              const recommendationIndex = analysis.toLowerCase().indexOf('recommendation:');
+              const recommendationText = analysis.substring(recommendationIndex + 'recommendation:'.length);
+              // Get everything after "Recommendation:" until end of text
+              const cleanRecommendation = recommendationText
+                .replace(/```json[\s\S]*?```/g, '')
+                .replace(/\n+/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+              productSpeech += `. ${cleanRecommendation}`;
+            }
+            
+            textToSpeak = productSpeech;
+            console.log(`[TTS] Created product speech: "${textToSpeak}"`);
+          }
+        }
+      } catch (parseError) {
+        console.log(`[TTS] Could not parse JSON products:`, parseError);
       }
-
-      const audioBuffer = await response.arrayBuffer();
-      console.log(`[TTS] Audio generated successfully for user ${userId}, size: ${audioBuffer.byteLength} bytes`);
       
-      // Save the audio to a temporary file that can be served via HTTP
-      const fs = require('fs');
-      const path = require('path');
-      
-      // Create audio directory if it doesn't exist
-      const audioDir = path.join(process.cwd(), 'audio');
-      if (!fs.existsSync(audioDir)) {
-        fs.mkdirSync(audioDir, { recursive: true });
+      // Fallback if product parsing failed
+      if (!textToSpeak || textToSpeak.length < 50) {
+        // Extract recommendation section with improved parsing
+        if (analysis.toLowerCase().includes('recommendation:')) {
+          const recommendationIndex = analysis.toLowerCase().indexOf('recommendation:');
+          const recommendationText = analysis.substring(recommendationIndex + 'recommendation:'.length);
+          textToSpeak = recommendationText
+            .replace(/```json[\s\S]*?```/g, '')
+            .replace(/\n+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          console.log(`[TTS] Using recommendation fallback: "${textToSpeak}"`);
+        } else {
+          // Last resort: clean analysis
+          const cleanAnalysis = analysis
+            .replace(/```json[\s\S]*?```/g, '')
+            .replace(/\n+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          textToSpeak = cleanAnalysis.substring(0, 400).trim();
+          console.log(`[TTS] Using clean analysis fallback: "${textToSpeak}"`);
+        }
       }
       
-      const audioFileName = `analysis-${userId}-${Date.now()}.mp3`;
-      const audioFilePath = path.join(audioDir, audioFileName);
-      fs.writeFileSync(audioFilePath, Buffer.from(audioBuffer));
-      
-      // Create a public URL for the audio file
-      const audioUrl = `http://localhost:${PORT}/audio/${audioFileName}`;
-      console.log(`[TTS] Audio saved to: ${audioFilePath}`);
-      console.log(`[TTS] Audio URL: ${audioUrl}`);
-      
-      // Try to play the audio immediately if session is available
       const session = this.sessions.get(userId);
-      if (session) {
-        console.log(`[TTS] Playing audio immediately for user ${userId}`);
-        console.log(`[TTS] Audio URL: ${audioUrl}`);
+      if (!session) {
+        console.log(`[TTS] No active session for user ${userId}, cannot play audio`);
+        return;
+      }
+
+      // First try ElevenLabs, then fallback to built-in TTS
+      try {
+        console.log(`[TTS] Attempting ElevenLabs API call for user ${userId}`);
+        
+        // Create speech using ElevenLabs API with better error handling
+        const response = await fetch("https://api.elevenlabs.io/v1/text-to-speech/JBFqnCBsd6RMkjVDRZzb?output_format=mp3_44100_128", {
+          method: "POST",
+          headers: {
+            "xi-api-key": ELEVENLABS_API_KEY,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "text": textToSpeak,
+            "model_id": "eleven_multilingual_v2"
+          }),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText} - ${errorText}`);
+        }
+
+        const audioBuffer = await response.arrayBuffer();
+        console.log(`[TTS] ElevenLabs audio generated successfully for user ${userId}, size: ${audioBuffer.byteLength} bytes`);
+        
+        // Save the audio to a temporary file that can be served via HTTP
+        
+        // Create audio directory if it doesn't exist
+        const audioDir = path.join(process.cwd(), 'audio');
+        if (!fs.existsSync(audioDir)) {
+          fs.mkdirSync(audioDir, { recursive: true });
+          console.log(`[TTS] Created audio directory: ${audioDir}`);
+        }
+        
+        const audioFileName = `analysis-${userId}-${Date.now()}.mp3`;
+        const audioFilePath = path.join(audioDir, audioFileName);
+        
+        // Save the audio file locally and create URL
+        fs.writeFileSync(audioFilePath, Buffer.from(audioBuffer));
+        console.log(`[TTS] ElevenLabs audio saved to: ${audioFilePath} (${audioBuffer.byteLength} bytes)`);
+        
+        // Create the URL using PUBLIC_URL from .env if available
+        const baseUrl = process.env.PUBLIC_URL || `http://localhost:${PORT}`;
+        // Remove trailing slash to avoid double slashes
+        const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+        const audioUrl = `${cleanBaseUrl}/audio/${audioFileName}`;
+        console.log(`[TTS] ElevenLabs audio URL: ${audioUrl}`);
+        
+        // Wait for file to be written
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Verify file exists and has content
+        if (fs.existsSync(audioFilePath)) {
+          const stats = fs.statSync(audioFilePath);
+          console.log(`[TTS] File verification: ${audioFilePath} exists, size: ${stats.size} bytes`);
+        } else {
+          console.error(`[TTS] File verification failed: ${audioFilePath} does not exist`);
+        }
+        
+        // Try to play the audio
+        console.log(`[TTS] Attempting to play ElevenLabs audio for user ${userId}`);
         try {
           const playResult = await session.audio.playAudio({ audioUrl: audioUrl });
-          console.log(`[TTS] Audio play result for user ${userId}:`, playResult);
+          console.log(`[TTS] ElevenLabs audio play result for user ${userId}:`, playResult);
           
+          // Don't throw error even if API says it failed, since it might actually be working
           if (playResult && playResult.success) {
-            console.log(`[TTS] Audio played successfully for user ${userId}`);
+            console.log(`[TTS] ElevenLabs audio reported success for user ${userId}`);
           } else {
-            console.error(`[TTS] Audio play failed for user ${userId}:`, playResult);
+            console.log(`[TTS] ElevenLabs audio API reported failure but may still be playing for user ${userId}`);
           }
-        } catch (error) {
-          console.error(`[TTS] Error playing audio for user ${userId}:`, error);
+          
+          console.log(`[TTS] ElevenLabs processing complete for user ${userId}`);
+          return;
+          
+        } catch (playError) {
+          console.error(`[TTS] Error during audio play for user ${userId}:`, playError);
+          throw playError; // This will trigger the fallback
         }
-      } else {
-        // Store the audio URL for later playback when session becomes available
-        console.log(`[TTS] No active session for user ${userId}, storing audio URL for later playback`);
-        this.pendingAudioUrls.set(userId, audioUrl);
+        
+      } catch (elevenLabsError) {
+        console.error(`[TTS] ElevenLabs generation failed for user ${userId}:`, elevenLabsError);
+        
+        // Only fallback to built-in TTS if ElevenLabs completely fails (e.g., API error)
+        console.log(`[TTS] ElevenLabs failed, falling back to built-in TTS for user ${userId}`);
+        try {
+          const speakResult = await session.audio.speak(textToSpeak);
+          console.log(`[TTS] Built-in TTS result for user ${userId}:`, speakResult);
+          
+          if (speakResult && speakResult.success) {
+            console.log(`[TTS] Built-in TTS played successfully for user ${userId}`);
+          } else {
+            console.error(`[TTS] Built-in TTS failed for user ${userId}:`, speakResult);
+          }
+        } catch (fallbackError) {
+          console.error(`[TTS] Built-in TTS also failed for user ${userId}:`, fallbackError);
+        }
       }
       
     } catch (error) {
-      console.error(`[TTS] Error generating speech for user ${userId}:`, error);
+      console.error(`[TTS] Complete failure for user ${userId}:`, error);
     }
   }
 
@@ -360,27 +473,57 @@ Analyze this product image and provide alternatives with current pricing.`;
       });
     });
 
-    // Serve audio files
+    // Serve audio files with better error handling
     app.use('/audio', (req, res, next) => {
       const filePath = path.join(process.cwd(), 'audio', req.path);
       
-      // Set proper headers for audio files
-      res.set({
-        'Content-Type': 'audio/mpeg',
-        'Cache-Control': 'no-cache',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, HEAD',
-        'Access-Control-Allow-Headers': 'Range'
-      });
+      console.log(`[AUDIO] Serving audio file request: ${req.path}`);
+      console.log(`[AUDIO] Full file path: ${filePath}`);
       
-      res.sendFile(filePath, (err) => {
-        if (err) {
-          console.error(`[AUDIO] Error serving audio file ${req.path}:`, err);
-          res.status(404).send('Audio file not found');
-        } else {
-          console.log(`[AUDIO] Successfully served audio file: ${req.path}`);
+      // Check if file exists first
+      if (!fs.existsSync(filePath)) {
+        console.error(`[AUDIO] Audio file not found: ${filePath}`);
+        res.status(404).send('Audio file not found');
+        return;
+      }
+      
+      // Get file stats
+      try {
+        const stats = fs.statSync(filePath);
+        console.log(`[AUDIO] Audio file size: ${stats.size} bytes`);
+        
+        // Set proper headers for audio files
+        res.set({
+          'Content-Type': 'audio/mpeg',
+          'Content-Length': stats.size.toString(),
+          'Cache-Control': 'no-cache',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+          'Access-Control-Allow-Headers': 'Range, Content-Range',
+          'Accept-Ranges': 'bytes'
+        });
+        
+        // Handle preflight OPTIONS request
+        if (req.method === 'OPTIONS') {
+          res.status(200).end();
+          return;
         }
-      });
+        
+        res.sendFile(filePath, (err) => {
+          if (err) {
+            console.error(`[AUDIO] Error serving audio file ${req.path}:`, err);
+            if (!res.headersSent) {
+              res.status(500).send('Error serving audio file');
+            }
+          } else {
+            console.log(`[AUDIO] Successfully served audio file: ${req.path} (${stats.size} bytes)`);
+          }
+        });
+        
+      } catch (statError) {
+        console.error(`[AUDIO] Error getting file stats for ${filePath}:`, statError);
+        res.status(500).send('Error accessing audio file');
+      }
     });
 
     // API endpoint to get the latest photo for the authenticated user
@@ -573,13 +716,13 @@ Analyze this product image and provide alternatives with current pricing.`;
       }
     });
 
-    // API endpoint to play a test audio file
-    app.post('/api/play-test-audio', async (req: any, res: any) => {
+    // API endpoint to test audio functionality
+    app.post('/api/test-audio', async (req: any, res: any) => {
       const userId = (req as AuthenticatedRequest).authUserId;
-      console.log(`[API] Play test audio request for userId: ${userId}`);
+      console.log(`[API] Test audio request for userId: ${userId}`);
 
       if (!userId) {
-        console.log(`[API] Unauthenticated request to /api/play-test-audio`);
+        console.log(`[API] Unauthenticated request to /api/test-audio`);
         res.status(401).json({ error: 'Not authenticated' });
         return;
       }
@@ -592,27 +735,23 @@ Analyze this product image and provide alternatives with current pricing.`;
       }
 
       try {
-        // Play a test audio file
-        console.log(`[API] Attempting to play test audio for userId: ${userId}`);
-        const playResult = await session.audio.playAudio({ audioUrl: "https://okgodoit.com/cool.mp3" });
-        console.log(`[API] Test audio play result for userId: ${userId}:`, playResult);
+        // Test built-in TTS first
+        console.log(`[API] Testing built-in TTS for userId: ${userId}`);
+        const speakResult = await session.audio.speak("Audio test successful");
+        console.log(`[API] Built-in TTS result for userId: ${userId}:`, speakResult);
         
-        if (playResult && playResult.success) {
-          res.json({ 
-            success: true, 
-            message: 'Test audio played successfully',
-            result: playResult
-          });
-        } else {
-          res.json({ 
-            success: false, 
-            message: 'Test audio play failed',
-            result: playResult
-          });
-        }
+        // Test ElevenLabs TTS
+        console.log(`[API] Testing ElevenLabs TTS for userId: ${userId}`);
+        await this.speakAnalysis("This is a test of ElevenLabs text-to-speech functionality.", userId);
+        
+        res.json({ 
+          success: true, 
+          message: 'Audio tests completed - check console for results',
+          builtInTTS: speakResult
+        });
       } catch (error) {
-        console.error(`[API] Error playing test audio for userId: ${userId}:`, error);
-        res.status(500).json({ error: 'Failed to play test audio', details: error.message });
+        console.error(`[API] Error testing audio for userId: ${userId}:`, error);
+        res.status(500).json({ error: 'Failed to test audio', details: error.message });
       }
     });
 

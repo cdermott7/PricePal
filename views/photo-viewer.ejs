@@ -780,8 +780,8 @@
       .photo-catalogue {
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 12px;
-        max-height: 200px;
-        overflow-y: auto;
+      max-height: 200px;
+      overflow-y: auto;
       }
     }
 
@@ -933,8 +933,8 @@
               <!-- Price cards will be inserted here -->
             </div>
           </div>
-        </div>
-
+  </div>
+  
         <div id="recommendation-section" style="display: none;">
           <div class="recommendation-card">
             <h3>Strategic Recommendation</h3>
@@ -1095,7 +1095,7 @@
     async function checkForPhotos() {
       try {
         const response = await fetch('/api/photos');
-        
+
         if (!response.ok) {
           if (response.status === 401) {
             showEmptyState('Authentication Required', 'Please open this page from the MentraOS app');
@@ -1211,14 +1211,14 @@
          const response = await fetch(`/api/analysis/${requestId}`);
          
          console.log(`[FRONTEND] Analysis response status: ${response.status}`);
-         
-         if (response.status === 404) {
+
+        if (response.status === 404) {
            console.log(`[FRONTEND] Analysis not ready yet for ${requestId}, retrying in 2s`);
            setTimeout(() => checkForAnalysis(requestId), 2000);
-           return;
-         }
-         
-         if (!response.ok) {
+          return;
+        }
+
+        if (!response.ok) {
            const errorText = await response.text();
            console.error(`[FRONTEND] Analysis request failed: ${response.status} - ${errorText}`);
            throw new Error(`Failed to fetch analysis: ${response.status}`);
@@ -1368,7 +1368,7 @@
       try {
         const response = await fetch(`/api/analysis/${requestId}`);
         if (response.ok) {
-          const data = await response.json();
+        const data = await response.json();
           if (data.analysis) {
             analysisCache.set(requestId, data.analysis);
             displayAnalysis(data.analysis);
