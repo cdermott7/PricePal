@@ -93,10 +93,10 @@ PricePal uses a dual-flow architecture to accommodate different Mentra glasses c
 
 ### API Integration
 
-#### OpenAI Web Search
-- **1st API**: Extract item description from images
-- **2nd API**: Get real-time prices from 3+ online retailers
-- Uses OpenAI's web search capabilities for up-to-date pricing
+#### Google Gemini 2.5 Flash Integration
+- **1st API**: Extract item description from images using Gemini's advanced vision capabilities
+- **2nd API**: Get real-time prices from 3+ online retailers with grounding and URL context
+- Uses Gemini's web search with grounding for accurate, up-to-date pricing data
 
 #### MentraOS Integration
 - **API Key**: `21fa7f66c799181180d478004b698a60a9fbff5f17d7dbdae420e8c85baf53b6`
@@ -107,7 +107,7 @@ PricePal uses a dual-flow architecture to accommodate different Mentra glasses c
 ### Prerequisites
 - Node.js and Bun runtime
 - MentraOS SDK access
-- OpenAI API key
+- Google Gemini API key
 - Roboflow account (for image processing)
 
 ### Installation
@@ -187,7 +187,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [Mentra](https://mentra.glass/) for the amazing smart glasses platform
-- OpenAI for powerful AI capabilities
+- Google Gemini for powerful AI capabilities with grounding and URL context
 - Roboflow for computer vision processing
 - ElevenLabs for speech synthesis
 - The entire Mentra community for inspiration and support
