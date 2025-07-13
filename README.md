@@ -1,12 +1,30 @@
 # PricePal 💰👓
 
-*Smart Price Comparison for Mentra Glasses*
+*Never Overpay Again - Powered by Mentra Glasses*
 
-PricePal is an innovative price comparison app built for Mentra smart glasses that helps users make informed purchasing decisions by instantly comparing prices across multiple retailers using computer vision and voice interaction.
+## 🛒 The Story That Started It All
 
-## 🎯 Project Overview
+Picture this: I was standing in Best Buy, staring at a USB WiFi adapter for my PC. The price tag read $40, and I was about to grab it when something made me pause. I quickly pulled out my phone and checked Amazon... **$15!** 
 
-PricePal was developed for the Mentra Hackathon to demonstrate the power of augmented reality shopping assistance. Simply look at any item, ask Mentra for a price check, and get instant comparisons from multiple online retailers - all through your smart glasses.
+That's right - I almost overpaid by $25 for the exact same product! 🤯
+
+That moment changed everything. We realized that in today's world of endless online retailers, we're constantly leaving money on the table simply because we don't have the time (or remember) to check prices everywhere.
+
+**That's why we built PricePal.** 
+
+Now, with just a glance and a simple voice command through your Mentra glasses, you'll instantly know if you're getting the best deal or if you should shop elsewhere. No more second-guessing, no more overpaying, no more buyer's remorse! 🎯
+
+## ✨ What Makes PricePal Special?
+
+PricePal transforms your Mentra glasses into your personal shopping assistant. Simply look at any product, ask "Hey Mentra, is this a good price?" and watch the magic happen! ✨
+
+Our AI-powered app instantly:
+- 🔍 **Recognizes** what you're looking at using advanced computer vision
+- 💰 **Compares prices** across multiple online retailers in real-time
+- 🎯 **Tells you** whether you're getting a good deal or should shop elsewhere
+- 🗣️ **Talks to you** naturally through voice interaction
+
+**Never overpay again. Powered by Mentra Glasses.** 💪
 
 ## ✨ Features
 
@@ -26,21 +44,24 @@ PricePal was developed for the Mentra Hackathon to demonstrate the power of augm
 
 ## 🚀 Demo Scenarios
 
-### Best Buy USB Wifi Adapter
-*Looking at USB Wifi Adapter at Best Buy for $25*
+### Best Buy USB WiFi Adapter
+**Scene**: User is looking at a USB WiFi Adapter at Best Buy for $40
 
-**User**: "Hey Mentra, I need a Wifi adapter, is this a good price?"
+**User**: "Hey PricePal, I need a USB WiFi adapter, is this a good price?"
 
-**Mentra**: "Hey William, I noticed the same Wifi Adapter is selling on Amazon for $12."
+**PricePal**: "👓 Hey there! I found a few alternatives that might save you some cash:
+The Best Buy option is significantly overpriced. You can save $25 by ordering one on Amazon. Unless you need it immediately, I'd skip the $40 one and order online."
 
-**User**: "Thanks Mentra for telling me and saving me $13 dollars in a matter of seconds!"
+**User**: "Damn, that saved me $25 instantly. You're a lifesaver, PricePal 👓💰"
 
 ### Meta Glasses Comparison
-**User**: "Hey Mentra, what do you think of these Meta glasses?"
+**Scene**: User is considering Meta Ray-Ban AI glasses
 
-**Mentra**: "Hey there, the Meta Ray-Bans are $379. Have you considered the Mentra glasses which are $250 ($129 less) and have all the same features while being open source?"
+**User**: "Hey PricePal, what do you think of these AI glasses?"
 
-**User**: "Thanks for telling me! I'm gonna get the Mentra glasses to both save money and have access to a bigger selection of apps, thanks Mentra!"
+**PricePal**: "👓 Hey! Those Meta Ray-Bans are $379. Just so you know, Mentra Glasses are only $250 — that's $129 less, with the same core features, plus they're open-source, meaning you get access to a wider range of apps and customizations."
+
+**User**: "That's awesome — I'll go with the Mentra ones. Same features, more freedom, and I save over $100? Easy choice. Thanks PricePal!"
 
 ## 🔧 Technical Implementation
 
@@ -75,10 +96,10 @@ PricePal uses a dual-flow architecture to accommodate different Mentra glasses c
 
 ### API Integration
 
-#### OpenAI Web Search
-- **1st API**: Extract item description from images
-- **2nd API**: Get real-time prices from 3+ online retailers
-- Uses OpenAI's web search capabilities for up-to-date pricing
+#### Google Gemini 2.5 Flash Integration
+- **1st API**: Extract item description from images using Gemini's advanced vision capabilities
+- **2nd API**: Get real-time prices from 3+ online retailers with grounding and URL context
+- Uses Gemini's web search with grounding for accurate, up-to-date pricing data
 
 #### MentraOS Integration
 - **API Key**: `21fa7f66c799181180d478004b698a60a9fbff5f17d7dbdae420e8c85baf53b6`
@@ -89,7 +110,7 @@ PricePal uses a dual-flow architecture to accommodate different Mentra glasses c
 ### Prerequisites
 - Node.js and Bun runtime
 - MentraOS SDK access
-- OpenAI API key
+- Google Gemini API key
 - Roboflow account (for image processing)
 
 ### Installation
@@ -169,7 +190,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - [Mentra](https://mentra.glass/) for the amazing smart glasses platform
-- OpenAI for powerful AI capabilities
+- Google Gemini for powerful AI capabilities with grounding and URL context
 - Roboflow for computer vision processing
 - ElevenLabs for speech synthesis
 - The entire Mentra community for inspiration and support
