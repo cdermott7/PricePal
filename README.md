@@ -1,12 +1,30 @@
 # PricePal 💰👓
 
-*Smart Price Comparison for Mentra Glasses*
+*Never Overpay Again - Powered by Mentra Glasses*
 
-PricePal is an innovative price comparison app built for Mentra smart glasses that helps users make informed purchasing decisions by instantly comparing prices across multiple retailers using computer vision and voice interaction.
+## 🛒 The Story That Started It All
 
-## 🎯 Project Overview
+Picture this: I was standing in Best Buy, staring at a USB WiFi adapter for my PC. The price tag read $40, and I was about to grab it when something made me pause. I quickly pulled out my phone and checked Amazon... **$15!** 
 
-PricePal was developed for the Mentra Hackathon to demonstrate the power of augmented reality shopping assistance. Simply look at any item, ask Mentra for a price check, and get instant comparisons from multiple online retailers - all through your smart glasses.
+That's right - I almost overpaid by $25 for the exact same product! 🤯
+
+That moment changed everything. We realized that in today's world of endless online retailers, we're constantly leaving money on the table simply because we don't have the time (or remember) to check prices everywhere.
+
+**That's why we built PricePal.** 
+
+Now, with just a glance and a simple voice command through your Mentra glasses, you'll instantly know if you're getting the best deal or if you should shop elsewhere. No more second-guessing, no more overpaying, no more buyer's remorse! 🎯
+
+## ✨ What Makes PricePal Special?
+
+PricePal transforms your Mentra glasses into your personal shopping assistant. Simply look at any product, ask "Hey Mentra, is this a good price?" and watch the magic happen! ✨
+
+Our AI-powered app instantly:
+- 🔍 **Recognizes** what you're looking at using advanced computer vision
+- 💰 **Compares prices** across multiple online retailers in real-time
+- 🎯 **Tells you** whether you're getting a good deal or should shop elsewhere
+- 🗣️ **Talks to you** naturally through voice interaction
+
+**Never overpay again. Powered by Mentra Glasses.** 💪
 
 ## ✨ Features
 
