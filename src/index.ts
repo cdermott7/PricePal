@@ -22,6 +22,7 @@ const PACKAGE_NAME = process.env.PACKAGE_NAME ?? (() => { throw new Error('PACKA
 const MENTRAOS_API_KEY = process.env.MENTRAOS_API_KEY ?? (() => { throw new Error('MENTRAOS_API_KEY is not set in .env file'); })();
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? (() => { throw new Error('GEMINI_API_KEY is not set in .env file'); })();
 const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY ?? (() => { throw new Error('ELEVENLABS_API_KEY is not set in .env file'); })();
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY ?? (() => { throw new Error('GOOGLE_MAPS_API_KEY is not set in .env file'); })();
 const PORT = parseInt(process.env.PORT || '3000');
 
 /**
@@ -267,6 +268,29 @@ Discount Store Image URL (Clearbit):`;
       // Store error message for debugging
       (photo as any).geminiAnalysis = `Error analyzing photo: ${error}`;
     }
+  }
+
+  /**
+   * Calculate distance between two coordinates using Haversine formula
+   */
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Radius of the Earth in kilometers
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c; // Distance in kilometers
+    return distance * 0.621371; // Convert to miles
+  }
+
+  /**
+   * Convert degrees to radians
+   */
+  private deg2rad(deg: number): number {
+    return deg * (Math.PI/180);
   }
 
   /**
@@ -765,6 +789,70 @@ Discount Store Image URL (Clearbit):`;
       } catch (error) {
         console.error(`[API] Error testing audio for userId: ${userId}:`, error);
         res.status(500).json({ error: 'Failed to test audio', details: error.message });
+      }
+    });
+
+    // API endpoint to find nearby stores
+    app.post('/api/nearby-stores', async (req: any, res: any) => {
+      const userId = (req as AuthenticatedRequest).authUserId;
+      console.log(`[API] Nearby stores request for userId: ${userId}`);
+
+      if (!userId) {
+        console.log(`[API] Unauthenticated request to /api/nearby-stores`);
+        res.status(401).json({ error: 'Not authenticated' });
+        return;
+      }
+
+      const { storeName, latitude, longitude } = req.body;
+
+      if (!storeName || !latitude || !longitude) {
+        res.status(400).json({ error: 'Missing required parameters: storeName, latitude, longitude' });
+        return;
+      }
+
+      try {
+        console.log(`[API] Finding stores for: ${storeName} near ${latitude}, ${longitude}`);
+        
+        // Use Google Places API to find nearby stores
+        const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=25000&keyword=${encodeURIComponent(storeName)}&type=store&key=${GOOGLE_MAPS_API_KEY}`;
+        
+        const response = await fetch(placesUrl);
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error(`[API] Google Places API error:`, data);
+          res.status(500).json({ error: 'Failed to fetch store locations' });
+          return;
+        }
+
+        // Process and return the store locations
+        const stores = data.results.slice(0, 5).map((place: any) => {
+          const distance = this.calculateDistance(
+            latitude, 
+            longitude, 
+            place.geometry.location.lat, 
+            place.geometry.location.lng
+          );
+
+          return {
+            name: place.name,
+            address: place.vicinity || place.formatted_address,
+            latitude: place.geometry.location.lat,
+            longitude: place.geometry.location.lng,
+            distance: Math.round(distance * 10) / 10, // Round to 1 decimal
+            rating: place.rating || null,
+            priceLevel: place.price_level || null,
+            isOpen: place.opening_hours?.open_now || null,
+            placeId: place.place_id
+          };
+        });
+
+        console.log(`[API] Found ${stores.length} stores for ${storeName}`);
+        res.json({ stores });
+
+      } catch (error) {
+        console.error(`[API] Error finding nearby stores:`, error);
+        res.status(500).json({ error: 'Failed to find nearby stores' });
       }
     });
 

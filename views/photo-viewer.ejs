@@ -509,6 +509,62 @@
       transform: scale(1.005);
     }
 
+    .processing-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: var(--blur-medium);
+      -webkit-backdrop-filter: var(--blur-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      opacity: 1;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .processing-overlay.complete {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .processing-indicator {
+      text-align: center;
+      color: var(--text-primary);
+    }
+
+    .processing-spinner {
+      width: 60px;
+      height: 60px;
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid var(--brand-primary);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: processing-spin 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    .processing-text {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .processing-subtitle {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      letter-spacing: -0.005em;
+    }
+
+    @keyframes processing-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
     .photo-display img {
       max-width: 100%;
       max-height: 100%;
@@ -691,6 +747,7 @@
       letter-spacing: 0.08em;
       display: flex;
       align-items: center;
+      justify-content: flex-start;
       gap: 8px;
     }
 
@@ -698,6 +755,7 @@
       width: 16px;
       height: 16px;
       opacity: 0.7;
+      flex-shrink: 0;
     }
 
     .table-row {
@@ -789,6 +847,12 @@
       line-height: 1.4;
       margin-bottom: 6px;
       letter-spacing: -0.01em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      max-height: 2.8em;
     }
 
     .product-description {
@@ -928,16 +992,19 @@
     .best-price::before {
       content: '🏆 Best Price';
       position: absolute;
-      top: -8px;
+      top: -12px;
       left: 50%;
       transform: translateX(-50%);
       font-size: 10px;
       font-weight: 700;
       color: var(--warning);
-      background: rgba(255, 214, 10, 0.1);
-      padding: 2px 8px;
-      border-radius: 8px;
+      background: rgba(255, 214, 10, 0.15);
+      border: 1px solid rgba(255, 214, 10, 0.3);
+      padding: 4px 8px;
+      border-radius: 12px;
       white-space: nowrap;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(255, 214, 10, 0.2);
     }
 
     .action-cell {
@@ -999,6 +1066,368 @@
     .compare-button:hover {
       color: var(--text-secondary);
       background: var(--primary-glass);
+    }
+
+    .find-nearby-button {
+      font-size: 12px;
+      color: var(--info);
+      background: rgba(0, 122, 255, 0.1);
+      padding: 8px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 122, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .find-nearby-button:hover {
+      color: white;
+      background: var(--info);
+      border-color: var(--info);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    }
+
+    .find-nearby-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Nearby stores modal styles */
+    .nearby-stores-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 20px;
+    }
+
+    .nearby-stores-content {
+      background: var(--secondary-glass);
+      backdrop-filter: var(--blur-intense);
+      -webkit-backdrop-filter: var(--blur-intense);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 
+        0 32px 80px var(--shadow-intense),
+        0 16px 40px var(--shadow-medium),
+        inset 0 2px 0 rgba(255, 255, 255, 0.15),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.08);
+      position: relative;
+    }
+
+    .nearby-stores-content::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      padding: 1px;
+      background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%, 
+        rgba(255, 255, 255, 0.05) 50%, 
+        rgba(255, 255, 255, 0.1) 100%);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+    }
+
+    .nearby-stores-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nearby-stores-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .close-modal {
+      background: var(--secondary-glass);
+      backdrop-filter: var(--blur-light);
+      -webkit-backdrop-filter: var(--blur-light);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      font-size: 20px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 8px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 16px var(--shadow-soft);
+    }
+
+    .close-modal:hover {
+      color: var(--text-primary);
+      background: var(--accent-glass);
+      transform: scale(1.1);
+      box-shadow: 0 8px 24px var(--shadow-medium);
+    }
+
+    .close-modal:active {
+      transform: scale(1.05);
+    }
+
+    .store-location {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid var(--border-glass);
+      margin-bottom: 16px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--primary-glass);
+      backdrop-filter: var(--blur-light);
+      -webkit-backdrop-filter: var(--blur-light);
+      box-shadow: 
+        0 8px 32px var(--shadow-soft),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .store-location::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.05), 
+        transparent);
+      transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .store-location:hover {
+      background: var(--accent-glass);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px) scale(1.01);
+      box-shadow: 
+        0 16px 48px var(--shadow-medium),
+        0 8px 32px var(--shadow-soft),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .store-location:hover::before {
+      left: 100%;
+    }
+
+    .store-location-info {
+      flex: 1;
+    }
+
+    .store-location-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .store-location-address {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .store-location-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+
+    .store-distance {
+      font-weight: 600;
+      color: var(--info);
+    }
+
+    .store-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .store-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .directions-button {
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(135deg, var(--info) 0%, var(--brand-secondary) 100%);
+      color: white;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 4px 16px rgba(0, 122, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .directions-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.2), 
+        transparent);
+      transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .directions-button:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 
+        0 8px 32px rgba(0, 122, 255, 0.4),
+        0 4px 16px rgba(0, 122, 255, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .directions-button:hover::before {
+      left: 100%;
+    }
+
+    .directions-button:active {
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    /* Discount section styles */
+    .discount-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .discount-card {
+      background: var(--secondary-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 16px var(--shadow-soft);
+    }
+
+    .discount-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--warning) 0%, var(--success) 100%);
+    }
+
+    .discount-card:hover {
+      transform: translateY(-2px);
+      background: var(--primary-glass);
+      box-shadow: 0 8px 32px var(--shadow-medium);
+    }
+
+    .discount-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .discount-icon {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 214, 10, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 214, 10, 0.2);
+    }
+
+    .discount-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .discount-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .discount-store {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--accent-glass);
+      border-radius: 8px;
+      border: 1px solid var(--border-glass);
+    }
+
+    .discount-store-logo {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      background: white;
+      border-radius: 4px;
+      padding: 2px;
+    }
+
+    .discount-store-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive button text */
+    .mobile-text {
+      display: none;
+    }
+
+    .desktop-text {
+      display: inline;
     }
 
     .recommendation-card p {
@@ -1129,8 +1558,8 @@
       .photo-catalogue {
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 12px;
-        max-height: 200px;
-        overflow-y: auto;
+      max-height: 200px;
+      overflow-y: auto;
       }
 
       /* Tablet table adjustments */
@@ -1222,19 +1651,19 @@
       }
 
       .table-header {
-        grid-template-columns: 200px 120px 100px 80px;
-        min-width: 500px;
+        grid-template-columns: 180px 100px 90px 100px;
+        min-width: 470px;
       }
       
       .table-row {
-        grid-template-columns: 200px 120px 100px 80px;
-        min-width: 500px;
+        grid-template-columns: 180px 100px 90px 100px;
+        min-width: 470px;
       }
       
       .product-cell {
-        padding: 16px 12px;
+        padding: 16px 8px;
         gap: 8px;
-        min-width: 200px;
+        min-width: 180px;
       }
       
       .product-image {
@@ -1243,17 +1672,17 @@
       }
       
       .product-name {
-        font-size: 13px;
+        font-size: 12px;
         line-height: 1.3;
       }
 
       .product-description {
-        display: none;
-      }
-      
+      display: none;
+    }
+
       .store-cell {
-        padding: 16px 8px;
-        min-width: 120px;
+        padding: 16px 6px;
+        min-width: 100px;
       }
       
       .store-info {
@@ -1261,12 +1690,12 @@
       }
       
       .store-logo, .store-icon {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
       }
       
       .store-name {
-        font-size: 11px;
+        font-size: 10px;
         text-align: center;
       }
 
@@ -1275,8 +1704,8 @@
       }
       
       .price-cell {
-        padding: 16px 8px;
-        min-width: 100px;
+        padding: 16px 6px;
+        min-width: 90px;
       }
       
       .price-value {
@@ -1294,29 +1723,127 @@
 
       .best-price::before {
         font-size: 8px;
-        padding: 1px 4px;
+        padding: 2px 6px;
+        top: -8px;
       }
 
       .action-cell {
-        padding: 16px 8px;
-        min-width: 80px;
+        padding: 16px 4px;
+        min-width: 100px;
+        gap: 4px;
       }
       
       .buy-button {
-        padding: 8px 10px;
-        font-size: 11px;
-        gap: 4px;
+        padding: 6px 8px;
+        font-size: 10px;
+        gap: 2px;
       }
 
       .buy-button svg {
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
       }
 
       .compare-button {
-        font-size: 10px;
-        padding: 4px 8px;
+        font-size: 9px;
+        padding: 4px 6px;
+        white-space: nowrap;
       }
+
+      .find-nearby-button {
+        font-size: 9px;
+        padding: 4px 6px;
+        white-space: nowrap;
+      }
+
+      /* Show mobile text on small screens */
+      .mobile-text {
+        display: inline;
+      }
+
+      .desktop-text {
+        display: none;
+      }
+
+      /* Optimize modal for mobile */
+      .nearby-stores-modal {
+        padding: 12px;
+      }
+
+      .nearby-stores-content {
+        padding: 20px;
+        max-height: 92vh;
+        border-radius: 20px;
+      }
+
+      .nearby-stores-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+      }
+
+      .nearby-stores-title {
+        font-size: 18px;
+      }
+
+      .close-modal {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+      }
+
+      .store-location {
+        padding: 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .store-location-name {
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .store-location-address {
+        font-size: 13px;
+      }
+
+      .store-location-meta {
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 11px;
+      }
+
+      .store-actions {
+        width: 100%;
+      }
+
+      .directions-button {
+        width: 100%;
+        padding: 14px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      /* Mobile discount styles */
+      .discount-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .discount-card {
+        padding: 16px;
+      }
+
+      .discount-title {
+        font-size: 15px;
+      }
+
+      .discount-description {
+        font-size: 13px;
+      }
+
+
     }
   </style>
 </head>
@@ -1326,7 +1853,7 @@
       <div class="brand-section">
         <div class="brand-logo">
           <img src="/assets/PricePalLogo.png" alt="PricePal">
-        </div>
+  </div>
         <div class="brand-text">
           <div class="brand-name">PricePal</div>
           <div class="brand-tagline">Intelligent Price Discovery</div>
@@ -1413,14 +1940,33 @@
             </p>
           </div>
         </div>
+        
+        <div id="discount-section" style="display: none;">
+          <!-- Discount content will be inserted here -->
+        </div>
       </div>
     </div>
   </div>
 
   <script>
+    function createDiscountSection() {
+      let discountSection = document.getElementById('discount-section');
+      if (!discountSection) {
+        discountSection = document.createElement('div');
+        discountSection.id = 'discount-section';
+        discountSection.style.display = 'none';
+        
+        const analysisSection = document.getElementById('analysis-section');
+        if (analysisSection && analysisSection.parentNode) {
+          analysisSection.parentNode.insertBefore(discountSection, analysisSection.nextSibling);
+        }
+      }
+      return discountSection;
+    }
     let currentPhotos = [];
     let currentPhotoIndex = -1;
     let analysisCache = new Map();
+    let activeAnalysisRequests = new Map(); // Track active analysis requests
 
          // Enhanced AI parsing with multiple strategies
      function parseAIResponse(analysisText) {
@@ -1430,7 +1976,8 @@
          products: [],
          recommendation: '',
          summary: '',
-         originalText: analysisText
+         originalText: analysisText,
+         discounts: []
        };
 
        try {
@@ -1456,14 +2003,16 @@
           }
         }
         
-        if (jsonText) {
-          try {
-            // Clean and parse the JSON
-            const cleanJson = jsonText.trim();
-            console.log(`[FRONTEND] Attempting to parse:`, cleanJson);
-            
-            const data = JSON.parse(cleanJson);
-            console.log(`[FRONTEND] Successfully parsed JSON:`, data);
+                 if (jsonText) {
+           try {
+             // Clean and parse the JSON
+             const cleanJson = jsonText.trim();
+             console.log(`[FRONTEND] Attempting to parse JSON of length:`, cleanJson.length);
+             console.log(`[FRONTEND] JSON content:`, cleanJson);
+             
+             const data = JSON.parse(cleanJson);
+             console.log(`[FRONTEND] Successfully parsed JSON:`, data);
+             console.log(`[FRONTEND] Data type:`, typeof data, `Array:`, Array.isArray(data));
             
             // Handle both direct array and wrapped object formats
             let products = [];
@@ -1524,15 +2073,51 @@
                 return processedItem;
               });
               
-              console.log(`[FRONTEND] Successfully created ${parsed.products.length} product objects`);
-            }
-          } catch (e) {
-            console.error(`[FRONTEND] JSON parsing failed:`, e);
-            console.error(`[FRONTEND] Failed to parse:`, jsonText);
-          }
-        } else {
-          console.warn(`[FRONTEND] No JSON found in analysis text`);
-        }
+                             console.log(`[FRONTEND] Successfully created ${parsed.products.length} product objects`);
+             }
+           } catch (e) {
+             console.error(`[FRONTEND] JSON parsing failed:`, e);
+             console.error(`[FRONTEND] Failed JSON content:`, jsonText);
+             // Don't let this error bubble up - continue with empty products array
+           }
+         } else {
+           console.warn(`[FRONTEND] No JSON found in analysis text`);
+         }
+
+         // Strategy 1b: Look for discount/coupon JSON blocks
+         const discountMatches = analysisText.match(/```json\s*([\s\S]*?)\s*```/g);
+         if (discountMatches) {
+           for (const match of discountMatches) {
+             try {
+               const cleanJson = match.replace(/```json|```/g, '').trim();
+               const data = JSON.parse(cleanJson);
+               
+               // Look for discount arrays
+               let discounts = [];
+               if (Array.isArray(data)) {
+                 // Check if this array contains discount objects
+                 if (data.length > 0 && data[0]['Discount Title']) {
+                   discounts = data;
+                 }
+               }
+               
+               if (discounts.length > 0) {
+                 parsed.discounts = discounts.map(item => ({
+                   title: item['Discount Title'] || item.title || 'Special Offer',
+                   description: item['Discount Description'] || item.description || '',
+                   store: item['Discount Store'] || item.store || 'Various Stores',
+                   storeImageUrl: item['Discount Store Image URL'] || item.storeImageUrl || null
+                 }));
+                 console.log(`[FRONTEND] Successfully parsed ${parsed.discounts.length} discounts`);
+                 break;
+               }
+             } catch (e) {
+               console.error(`[FRONTEND] Discount JSON parsing failed:`, e);
+             }
+           }
+         }
+         
+         console.log(`[FRONTEND] Final parsing result - products:`, parsed.products?.length || 0);
 
         // Strategy 2: Extract recommendation
         const lines = analysisText.split('\n');
@@ -1760,6 +2345,155 @@
       }
     }
 
+    // Nearby stores functionality
+    async function findNearbyStores(storeName, productName) {
+      console.log(`[FRONTEND] Finding nearby stores for: ${storeName}`);
+      
+      // Get all find nearby buttons and disable them
+      const buttons = document.querySelectorAll('.find-nearby-button');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        btn.innerHTML = '<span>📍 Searching...</span>';
+      });
+
+      try {
+        // Get user's location
+        const position = await new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported'));
+          return;
+        }
+          
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 300000 // 5 minutes
+          });
+        });
+
+        const { latitude, longitude } = position.coords;
+        console.log(`[FRONTEND] User location: ${latitude}, ${longitude}`);
+
+        // Call backend API to find nearby stores
+        const response = await fetch('/api/nearby-stores', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            storeName: storeName,
+            latitude: latitude,
+            longitude: longitude
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to find nearby stores');
+        }
+
+        const data = await response.json();
+        console.log(`[FRONTEND] Found ${data.stores.length} nearby stores`);
+
+        // Show the stores in a modal
+        showNearbyStoresModal(storeName, productName, data.stores);
+
+      } catch (error) {
+        console.error('[FRONTEND] Error finding nearby stores:', error);
+        
+        // Show error message
+        const errorMsg = error.message.includes('User denied') 
+          ? 'Location access denied. Please enable location services and try again.'
+          : `Error finding stores: ${error.message}`;
+          
+        alert(errorMsg);
+      } finally {
+        // Re-enable buttons
+        buttons.forEach(btn => {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <span class="mobile-text">📍 Near</span>
+            <span class="desktop-text">📍 Find Near Me</span>
+          `;
+        });
+      }
+    }
+
+    function showNearbyStoresModal(storeName, productName, stores) {
+      // Remove existing modal if present
+      const existingModal = document.getElementById('nearby-stores-modal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Create modal
+      const modal = document.createElement('div');
+      modal.id = 'nearby-stores-modal';
+      modal.className = 'nearby-stores-modal';
+      
+      const modalContent = `
+        <div class="nearby-stores-content">
+          <div class="nearby-stores-header">
+            <div class="nearby-stores-title">${storeName} Stores Near You</div>
+            <button class="close-modal" onclick="closeNearbyStoresModal()">&times;</button>
+          </div>
+          <div class="nearby-stores-list">
+            ${stores.length > 0 ? stores.map((store, index) => `
+              <div class="store-location">
+                <div class="store-location-info">
+                  <div class="store-location-name">${store.name}</div>
+                  <div class="store-location-address">${store.address}</div>
+                  <div class="store-location-meta">
+                    <span class="store-distance">${store.distance} miles</span>
+                    ${store.rating ? `
+                      <span class="store-rating">
+                        ⭐ ${store.rating}/5
+                      </span>
+                    ` : ''}
+                    ${store.isOpen !== null ? `
+                      <span class="store-status ${store.isOpen ? 'open' : 'closed'}">
+                        ${store.isOpen ? '🟢 Open' : '🔴 Closed'}
+                      </span>
+                    ` : ''}
+                  </div>
+                </div>
+                <div class="store-actions">
+                  <a href="https://www.google.com/maps/dir/?api=1&destination=${store.latitude},${store.longitude}" 
+                     target="_blank" class="directions-button">
+                    Get Directions
+                  </a>
+                </div>
+              </div>
+            `).join('') : `
+              <div style="text-align: center; padding: 40px; color: var(--text-tertiary);">
+                <div style="font-size: 48px; margin-bottom: 16px;">🏪</div>
+                <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">No ${storeName} stores found nearby</div>
+                <div>Try searching for a different store or expand your search radius</div>
+              </div>
+            `}
+          </div>
+        </div>
+      `;
+      
+      modal.innerHTML = modalContent;
+      
+      // Add click outside to close
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeNearbyStoresModal();
+        }
+      });
+      
+      document.body.appendChild(modal);
+    }
+
+    function closeNearbyStoresModal() {
+      const modal = document.getElementById('nearby-stores-modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
     // Enhanced photo management with request throttling
     let isCheckingPhotos = false;
     let pollInterval = null;
@@ -1833,6 +2567,14 @@
     }
 
     function selectPhoto(index) {
+      // Cancel any existing analysis requests
+      console.log(`[FRONTEND] Selecting photo ${index}, canceling previous requests`);
+      activeAnalysisRequests.forEach((controller, requestId) => {
+        console.log(`[FRONTEND] Canceling analysis request for ${requestId}`);
+        controller.abort();
+      });
+      activeAnalysisRequests.clear();
+      
       currentPhotoIndex = index;
       updatePhotoCatalogue();
       displaySelectedPhoto();
@@ -1842,6 +2584,8 @@
         loadAnalysis(photo.requestId);
       } else {
         showAnalysisLoading();
+        // Initialize tracking for this request
+        activeAnalysisRequests.set(photo.requestId, new AbortController());
         checkForAnalysis(photo.requestId);
       }
     }
@@ -1853,6 +2597,13 @@
       mainDisplay.innerHTML = `
         <div class="photo-display">
           <img src="/api/photo/${photo.requestId}" alt="Selected Product" />
+          <div class="processing-overlay">
+            <div class="processing-indicator">
+              <div class="processing-spinner"></div>
+              <div class="processing-text">AI Analysis in Progress</div>
+              <div class="processing-subtitle">Finding the best prices for you...</div>
+            </div>
+          </div>
         </div>
       `;
     }
@@ -1891,8 +2642,28 @@
        try {
          console.log(`[FRONTEND] Checking for analysis for requestId: ${requestId} (attempt ${retryCount + 1})`);
          
+         // Check if this request was cancelled
+         if (!activeAnalysisRequests.has(requestId) && retryCount > 0) {
+           console.log(`[FRONTEND] Analysis request ${requestId} was cancelled, stopping`);
+           return;
+         }
+         
+         // Update processing text based on retry count
+         const processingOverlay = document.querySelector('.processing-overlay .processing-text');
+         if (processingOverlay) {
+           const messages = [
+             'AI Analysis in Progress',
+             'Deep Learning Analysis', 
+             'Scanning Market Prices',
+             'Comparing Best Deals',
+             'Finalizing Results'
+           ];
+           processingOverlay.textContent = messages[Math.min(retryCount, messages.length - 1)];
+         }
+         
          // Add a timeout to prevent hanging requests
          const controller = new AbortController();
+         activeAnalysisRequests.set(requestId, controller);
          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
          
          const response = await fetch(`/api/analysis/${requestId}`, {
@@ -1900,16 +2671,23 @@
          });
          
          clearTimeout(timeoutId);
+         activeAnalysisRequests.delete(requestId);
          console.log(`[FRONTEND] Analysis response status: ${response.status}`);
 
         if (response.status === 404) {
            console.log(`[FRONTEND] Analysis not ready yet for ${requestId}, retrying in 3s`);
-           // Increase retry interval and limit retries
-           if (retryCount < 10) {
+           // Check if request was cancelled before scheduling retry
+           if (!activeAnalysisRequests.has(requestId)) {
+             console.log(`[FRONTEND] Analysis request ${requestId} was cancelled during retry`);
+             return;
+           }
+           // Increase retry interval and limit retries to 15 (45 seconds total)
+           if (retryCount < 15) {
              setTimeout(() => checkForAnalysis(requestId, retryCount + 1), 3000);
            } else {
              console.warn('[FRONTEND] Max retries reached for analysis check');
-             showAnalysisError('Analysis taking longer than expected');
+             activeAnalysisRequests.delete(requestId);
+             showAnalysisTimeoutError();
            }
           return;
         }
@@ -1918,9 +2696,9 @@
            const errorText = await response.text();
            console.error(`[FRONTEND] Analysis request failed: ${response.status} - ${errorText}`);
            throw new Error(`Failed to fetch analysis: ${response.status}`);
-         }
+        }
 
-         const data = await response.json();
+        const data = await response.json();
          console.log(`[FRONTEND] Received analysis data:`, data);
          
          if (!data.analysis) {
@@ -1931,10 +2709,13 @@
          analysisCache.set(requestId, data.analysis);
          displayAnalysis(data.analysis);
          
-       } catch (error) {
+             } catch (error) {
+         activeAnalysisRequests.delete(requestId);
+         
          if (error.name === 'AbortError') {
-           console.error('[FRONTEND] Analysis request timed out');
-           showAnalysisError('Request timed out');
+           console.log('[FRONTEND] Analysis request was cancelled or timed out');
+           // Don't show error for cancelled requests
+           return;
          } else {
            console.error('[FRONTEND] Error checking for analysis:', error);
            showAnalysisError(error.message || error.toString());
@@ -1945,12 +2726,26 @@
          function displayAnalysis(analysisText) {
        console.log(`[FRONTEND] Displaying analysis:`, analysisText);
        
-       const parsed = parseAIResponse(analysisText);
-       console.log(`[FRONTEND] Parsed analysis:`, parsed);
-       
-       // Show the analysis section with proper vertical stacking
-       const analysisSection = document.getElementById('analysis-section');
-       analysisSection.style.display = 'block';
+       try {
+         // Hide processing overlay with smooth transition
+         const processingOverlay = document.querySelector('.processing-overlay');
+         if (processingOverlay) {
+           processingOverlay.classList.add('complete');
+           setTimeout(() => {
+             if (processingOverlay.parentNode) {
+               processingOverlay.remove();
+             }
+           }, 500);
+         }
+         
+         console.log(`[FRONTEND] About to parse analysis...`);
+         const parsed = parseAIResponse(analysisText);
+         console.log(`[FRONTEND] Successfully parsed analysis:`, parsed);
+         console.log(`[FRONTEND] Found ${parsed.products?.length || 0} products`);
+         
+         // Show the analysis section with proper vertical stacking
+         const analysisSection = document.getElementById('analysis-section');
+         analysisSection.style.display = 'block';
        
        if (parsed.products.length > 0) {
          console.log(`[FRONTEND] Found ${parsed.products.length} products to display`);
@@ -2059,6 +2854,10 @@
                      <button class="compare-button" onclick="window.open('https://www.google.com/search?q=${encodeURIComponent(product.name)}', '_blank')">
                        Compare Prices
                      </button>
+                     <button class="find-nearby-button" onclick="findNearbyStores('${product.store}', '${product.name}')">
+                       <span class="mobile-text">📍 Near</span>
+                       <span class="desktop-text">📍 Find Near Me</span>
+                     </button>
                    </div>
                  </div>
                `;
@@ -2069,14 +2868,35 @@
          document.getElementById('price-comparison').innerHTML = priceTable;
        } else {
          console.log(`[FRONTEND] No structured products found, showing clean analysis`);
+         console.log(`[FRONTEND] Original analysis length:`, analysisText.length);
          // Show a clean version of the analysis without raw JSON
          const cleanText = analysisText.replace(/```json[\s\S]*?```/g, '').replace(/\n+/g, '\n').trim();
-         document.getElementById('price-comparison').innerHTML = `
-           <div class="price-card">
-             <h3>Analysis Complete</h3>
-             <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${cleanText}</p>
-           </div>
-         `;
+         console.log(`[FRONTEND] Clean text length:`, cleanText.length);
+         
+         if (cleanText.length > 50) {
+           document.getElementById('price-comparison').innerHTML = `
+             <div class="price-card">
+               <h3>Analysis Complete</h3>
+               <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${cleanText}</p>
+               <div style="margin-top: 16px; padding: 12px; background: rgba(0, 122, 255, 0.1); border-radius: 8px; font-size: 13px; color: var(--info);">
+                 💡 Analysis completed successfully. Price comparison data will be enhanced in future updates.
+               </div>
+             </div>
+           `;
+         } else {
+           // Very short text, might be an error or incomplete
+           document.getElementById('price-comparison').innerHTML = `
+             <div class="price-card">
+               <h3>Analysis Received</h3>
+               <p style="color: var(--text-secondary); line-height: 1.6;">
+                 Analysis data received but needs manual review.
+               </p>
+               <div style="margin-top: 16px; padding: 12px; background: rgba(255, 214, 10, 0.1); border-radius: 8px; font-size: 13px; color: var(--warning);">
+                 ⚠️ Please try taking another photo for detailed price comparison.
+               </div>
+             </div>
+           `;
+         }
        }
        
        if (parsed.recommendation) {
@@ -2087,15 +2907,101 @@
          console.log(`[FRONTEND] No recommendation found`);
          document.getElementById('recommendation-section').style.display = 'none';
        }
+
+       // Display discounts/coupons if available
+       if (parsed.discounts && parsed.discounts.length > 0) {
+         console.log(`[FRONTEND] Showing ${parsed.discounts.length} discounts`);
+         const discountSection = document.getElementById('discount-section') || createDiscountSection();
+         discountSection.style.display = 'block';
+         discountSection.innerHTML = `
+           <div class="panel glass-elevated">
+             <div class="panel-header">
+               <div class="panel-title">💰 Available Discounts & Coupons</div>
+               <div class="panel-subtitle">Save even more with these offers</div>
+             </div>
+             <div class="panel-content">
+               <div class="discount-grid">
+                 ${parsed.discounts.map(discount => `
+                   <div class="discount-card">
+                     <div class="discount-header">
+                       <div class="discount-icon">🎫</div>
+                       <div class="discount-title">${discount.title}</div>
+                     </div>
+                     <div class="discount-description">${discount.description}</div>
+                     <div class="discount-store">
+                       ${getStoreLogoUrl(discount.store) ? 
+                         `<img src="${getStoreLogoUrl(discount.store)}" alt="${discount.store}" class="discount-store-logo" onerror="this.style.display='none'">` : 
+                         ''
+                       }
+                       <span class="discount-store-name">${discount.store}</span>
+                     </div>
+                   </div>
+                 `).join('')}
+               </div>
+             </div>
+           </div>
+         `;
+       } else {
+         const discountSection = document.getElementById('discount-section');
+         if (discountSection) {
+           discountSection.style.display = 'none';
+         }
+       }
+       
+       // Update global status
+       const globalStatus = document.getElementById('global-status');
+       globalStatus.className = 'status-pill ready';
+       globalStatus.innerHTML = 'Analysis Complete';
+       
+     } catch (error) {
+       console.error(`[FRONTEND] CRITICAL ERROR in displayAnalysis:`, error);
+       console.error(`[FRONTEND] Analysis text that caused error:`, analysisText);
+       
+       // Instead of showing error, try to show raw analysis text
+       console.log(`[FRONTEND] Attempting to show raw analysis as fallback`);
+       
+       // Hide processing overlay
+       const processingOverlay = document.querySelector('.processing-overlay');
+       if (processingOverlay) {
+         processingOverlay.classList.add('complete');
+         setTimeout(() => processingOverlay.remove(), 500);
+       }
+       
+       // Show analysis section with raw text
+       const analysisSection = document.getElementById('analysis-section');
+       analysisSection.style.display = 'block';
+       
+       // Clean up the text and show it
+       const cleanText = analysisText.replace(/```json[\s\S]*?```/g, '').replace(/\n+/g, '\n').trim();
+       document.getElementById('price-comparison').innerHTML = `
+         <div class="price-card">
+           <h3>Analysis Complete</h3>
+           <p style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap;">${cleanText}</p>
+           <div style="margin-top: 16px; padding: 12px; background: rgba(255, 214, 10, 0.1); border-radius: 8px; font-size: 13px; color: var(--warning);">
+             💡 Detailed price comparison temporarily unavailable. Raw analysis shown above.
+           </div>
+         </div>
+       `;
+       
+       // Hide recommendation section since parsing failed
+       document.getElementById('recommendation-section').style.display = 'none';
        
        // Update global status
        const globalStatus = document.getElementById('global-status');
        globalStatus.className = 'status-pill ready';
        globalStatus.innerHTML = 'Analysis Complete';
      }
+     }
 
          function showAnalysisError(errorMessage = 'Unknown error') {
        console.log(`[FRONTEND] Showing analysis error: ${errorMessage}`);
+       
+       // Hide processing overlay
+       const processingOverlay = document.querySelector('.processing-overlay');
+       if (processingOverlay) {
+         processingOverlay.classList.add('complete');
+         setTimeout(() => processingOverlay.remove(), 500);
+       }
        
        const globalStatus = document.getElementById('global-status');
        globalStatus.className = 'status-pill error';
@@ -2124,6 +3030,52 @@
                  <small style="color: var(--text-quaternary); margin-top: 8px; display: block;">
                    Error: ${errorMessage}
                  </small>
+               </div>
+             </div>
+           </div>
+         </div>
+       `;
+     }
+
+     function showAnalysisTimeoutError() {
+       console.log(`[FRONTEND] Showing analysis timeout error`);
+       
+       // Hide processing overlay
+       const processingOverlay = document.querySelector('.processing-overlay');
+       if (processingOverlay) {
+         processingOverlay.classList.add('complete');
+         setTimeout(() => processingOverlay.remove(), 500);
+       }
+       
+       const globalStatus = document.getElementById('global-status');
+       globalStatus.className = 'status-pill error';
+       globalStatus.innerHTML = 'Analysis Timeout';
+       
+       const analysisSection = document.getElementById('analysis-section');
+       analysisSection.style.display = 'flex';
+       analysisSection.innerHTML = `
+         <div class="panel glass-elevated">
+           <div class="panel-header">
+             <div class="panel-title">Analysis Taking Longer Than Expected</div>
+             <div class="panel-subtitle">AI processing is experiencing delays</div>
+           </div>
+           <div class="panel-content">
+             <div class="empty-state">
+               <div class="empty-icon">
+                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                   <circle cx="12" cy="12" r="10"/>
+                   <polyline points="12,6 12,12 16,14"/>
+                 </svg>
+               </div>
+               <div class="empty-title">Please Wait or Try Again</div>
+               <div class="empty-subtitle">
+                 The AI is working hard to find the best prices for you.<br>
+                 You can wait for results or take a new photo to start fresh.
+                 <div style="margin-top: 16px;">
+                   <button onclick="location.reload()" class="action-button" style="margin: 0 auto; display: block;">
+                     🔄 Take New Photo
+                   </button>
+                 </div>
                </div>
              </div>
            </div>
