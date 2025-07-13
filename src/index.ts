@@ -308,83 +308,132 @@ Discount Store Image URL (Clearbit):`;
       let textToSpeak = "";
       
       try {
-        // Extract JSON from the analysis
-        const jsonMatch = analysis.match(/```json\s*([\s\S]*?)\s*```/);
-        if (jsonMatch) {
-          const jsonStr = jsonMatch[1].trim();
-          const data = JSON.parse(jsonStr);
+        // First, extract the product name from the beginning
+        let productName = "";
+        const productNameMatch = analysis.match(/Image Product Name:\s*([^\n\r}]+)/i);
+        if (productNameMatch) {
+          productName = productNameMatch[1].trim();
+        }
+        
+        // Extract JSON from the analysis - look for alternatives array
+        const jsonBlocks = analysis.match(/\[[\s\S]*?\]/g) || [];
+        let products: any[] = [];
+        
+        // Find the first JSON block that looks like products (has Product Name but not Discount Title)
+        for (const block of jsonBlocks) {
+          try {
+            const data = JSON.parse(block);
+            if (Array.isArray(data) && data.length > 0 && 
+                data[0]['Product Name'] && !data[0]['Discount Title']) {
+              products = data;
+              break;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+        
+        if (products.length > 0) {
+          // Create natural, conversational speech
+          let speech = "";
           
-          // Handle both direct array and wrapped object formats
-          let products: any[] = [];
-          if (Array.isArray(data)) {
-            products = data;
-          } else if (data.alternatives && Array.isArray(data.alternatives)) {
-            products = data.alternatives;
-          } else if (data.products && Array.isArray(data.products)) {
-            products = data.products;
+          if (productName) {
+            speech += `I found a ${productName}. `;
           }
           
-          if (products.length > 0) {
-            // Create human-friendly speech from the products
-            let productSpeech = "Here are the alternatives I found: ";
+          speech += "Here are some great alternatives: ";
+          
+          products.forEach((product, index) => {
+            const name = product['Product Name'] || 'an item';
+            const store = product['Product Store'] || 'online';
+            const price = product['Product Price'] || 'check for pricing';
             
-            products.forEach((product, index) => {
-              const name = product.ProductName || product['Product Name'] || product.name || 'Unknown product';
-              const store = product.ProductStore || product['Product Store'] || product.store || 'Unknown store';
-              const price = product.ProductPrice || product['Product Price'] || product.price || 'Unknown price';
-              
-              if (index === 0) {
-                productSpeech += `${name} from ${store} for ${price}`;
-              } else if (index === products.length - 1) {
-                productSpeech += `, and ${name} from ${store} for ${price}`;
+            // Clean up price formatting for speech
+            let spokenPrice = price.toString();
+            if (spokenPrice.includes('$')) {
+              spokenPrice = spokenPrice.replace('$', '').replace('.00', ' dollars');
+              if (spokenPrice.includes('.')) {
+                const parts = spokenPrice.split('.');
+                spokenPrice = `${parts[0]} dollars and ${parts[1]} cents`;
               } else {
-                productSpeech += `, ${name} from ${store} for ${price}`;
+                spokenPrice += ' dollars';
               }
-            });
-            
-            // Add recommendation if available
-            if (analysis.toLowerCase().includes('recommendation:')) {
-              const recommendationIndex = analysis.toLowerCase().indexOf('recommendation:');
-              const recommendationText = analysis.substring(recommendationIndex + 'recommendation:'.length);
-              // Get everything after "Recommendation:" until end of text
-              const cleanRecommendation = recommendationText
-                .replace(/```json[\s\S]*?```/g, '')
-                .replace(/\n+/g, ' ')
-                .replace(/\s+/g, ' ')
-                .trim();
-              productSpeech += `. ${cleanRecommendation}`;
             }
             
-            textToSpeak = productSpeech;
-            console.log(`[TTS] Created product speech: "${textToSpeak}"`);
+            // Make store names more natural
+            let spokenStore = store;
+            if (store.toLowerCase().includes('store')) {
+              spokenStore = store; // Keep as is if already includes "store"
+            } else {
+              spokenStore = `${store}`;
+            }
+            
+            if (index === 0) {
+              speech += `The ${name} at ${spokenStore} for ${spokenPrice}`;
+            } else if (index === products.length - 1) {
+              speech += `, and the ${name} at ${spokenStore} for ${spokenPrice}`;
+            } else {
+              speech += `, the ${name} at ${spokenStore} for ${spokenPrice}`;
+            }
+          });
+          
+          // Find the best price
+          const prices = products.map(p => {
+            const priceStr = p['Product Price'] || '0';
+            return parseFloat(priceStr.replace(/[$,]/g, ''));
+          }).filter(p => !isNaN(p));
+          
+          if (prices.length > 0) {
+            const minPrice = Math.min(...prices);
+            const maxPrice = Math.max(...prices);
+            if (minPrice !== maxPrice) {
+              speech += `. Prices range from ${minPrice} to ${maxPrice} dollars, so you have some good options to choose from.`;
+            }
           }
+          
+          textToSpeak = speech;
+          console.log(`[TTS] Created natural speech: "${textToSpeak}"`);
         }
       } catch (parseError) {
         console.log(`[TTS] Could not parse JSON products:`, parseError);
       }
       
       // Fallback if product parsing failed
-      if (!textToSpeak || textToSpeak.length < 50) {
-        // Extract recommendation section with improved parsing
-        if (analysis.toLowerCase().includes('recommendation:')) {
-          const recommendationIndex = analysis.toLowerCase().indexOf('recommendation:');
-          const recommendationText = analysis.substring(recommendationIndex + 'recommendation:'.length);
-          textToSpeak = recommendationText
-            .replace(/```json[\s\S]*?```/g, '')
-            .replace(/\n+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          console.log(`[TTS] Using recommendation fallback: "${textToSpeak}"`);
-        } else {
-          // Last resort: clean analysis
-          const cleanAnalysis = analysis
-            .replace(/```json[\s\S]*?```/g, '')
-            .replace(/\n+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          textToSpeak = cleanAnalysis.substring(0, 400).trim();
-          console.log(`[TTS] Using clean analysis fallback: "${textToSpeak}"`);
+      if (!textToSpeak || textToSpeak.length < 30) {
+        // Try to extract and clean up any readable content
+        let cleanText = analysis
+          .replace(/```json[\s\S]*?```/g, '') // Remove JSON blocks
+          .replace(/\{[\s\S]*?\}/g, '') // Remove any remaining JSON objects
+          .replace(/Image Product Name:\s*[^\n\r]+/gi, '') // Remove technical labels
+          .replace(/Stores Where.*?:/gi, '') // Remove store labels
+          .replace(/Product Name:/gi, '') // Remove field labels
+          .replace(/Product Store:/gi, '')
+          .replace(/Product Price:/gi, '')
+          .replace(/Discount Title:/gi, '')
+          .replace(/Discount Description:/gi, '')
+          .replace(/\n+/g, ' ') // Replace newlines with spaces
+          .replace(/\s+/g, ' ') // Normalize whitespace
+          .trim();
+        
+        // Find the recommendation section if it exists
+        const recIndex = cleanText.toLowerCase().indexOf('recommendation');
+        if (recIndex > -1) {
+          cleanText = cleanText.substring(recIndex);
+          cleanText = cleanText.replace(/^recommendation[:\s]*/i, 'Here\'s my recommendation: ');
         }
+        
+        // Limit length and ensure it sounds natural
+        if (cleanText.length > 300) {
+          cleanText = cleanText.substring(0, 300);
+          // Try to end at a sentence
+          const lastPeriod = cleanText.lastIndexOf('.');
+          if (lastPeriod > 200) {
+            cleanText = cleanText.substring(0, lastPeriod + 1);
+          }
+        }
+        
+        textToSpeak = cleanText || "I've analyzed your photo and found some great information for you.";
+        console.log(`[TTS] Using cleaned fallback: "${textToSpeak}"`);
       }
       
       const session = this.sessions.get(userId);
