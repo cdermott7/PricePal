@@ -217,7 +217,11 @@ class ExampleMentraOSApp extends AppServer {
       
       // Create the prompt
       const prompt = `You will be provided an image of a product that the user is currently looking at.
-
+0. Output the name of the product in the image. Clearly and and immediately.(Just type of store not the full name i.e., "Apple" not "Apple Store") Please format it like:
+{
+ Image Product Name:
+ Stores Where the Product is Sold in San Francisco: [Store Name 1 , Store Name 2 , Store Name 3 ]
+}
 1. Give the user 3 alternatives to this product and their prices in JSON format with:
 {
 Product Name:

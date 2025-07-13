@@ -182,6 +182,29 @@
       object-fit: contain;
     }
 
+    .brand-logo-large {
+      height: 80px;
+      padding: 0;
+      border-radius: 0;
+      background: var(--accent-glass);
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      border: 1px solid var(--border-glass);
+      box-shadow: 0 6px 24px var(--shadow-soft);
+      flex: 1;
+      margin-right: 16px;
+      min-width: 300px;
+      max-width: 100%;
+    }
+
+    .brand-logo-large img {
+      width: 100%;
+      height: 64px;
+      max-width: 800px;
+      object-fit: contain;
+    }
+
     .brand-text {
       display: flex;
       flex-direction: column;
@@ -573,6 +596,104 @@
       box-shadow: 0 20px 60px var(--shadow-medium);
     }
 
+    .product-name-section {
+      text-align: center;
+      margin: 24px 0;
+      padding: 20px;
+      background: var(--accent-glass);
+      border-radius: 20px;
+      border: 1px solid var(--border-glass);
+      box-shadow: 0 8px 32px var(--shadow-soft);
+    }
+
+    .main-product-name {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin: 0;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .nearby-stores-section {
+      margin: 24px 0;
+      padding: 20px;
+      background: var(--secondary-glass);
+      border-radius: 20px;
+      border: 1px solid var(--border-glass);
+      box-shadow: 0 8px 32px var(--shadow-soft);
+    }
+
+    .nearby-stores-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 16px 0;
+      letter-spacing: -0.01em;
+    }
+
+    .nearby-stores-quick-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .nearby-store-card {
+      background: var(--primary-glass);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border-glass);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .nearby-store-card:hover {
+      background: var(--accent-glass);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--shadow-soft);
+    }
+
+    .store-logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      height: 40px;
+    }
+
+    .nearby-store-logo {
+      max-width: 60px;
+      max-height: 40px;
+      object-fit: contain;
+      background: white;
+      border-radius: 4px;
+      padding: 4px;
+      border: 1px solid var(--border-glass);
+    }
+
+    .nearby-store-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+    }
+
+    .nearby-store-action {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--info);
+      color: white;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .nearby-store-action:hover {
+      background: var(--brand-secondary);
+      transform: translateY(-1px);
+    }
+
     .analysis-section {
       display: grid;
       gap: 24px;
@@ -645,14 +766,7 @@
       display: inline-block;
     }
 
-    .recommendation-card {
-      background: var(--accent-glass);
-      border: 1px solid var(--border-glass);
-      border-radius: 20px;
-      padding: 32px;
-      position: relative;
-      overflow: hidden;
-    }
+
 
     .action-button {
       display: flex;
@@ -698,23 +812,7 @@
       transform: none;
     }
 
-    .recommendation-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: var(--success);
-    }
 
-    .recommendation-card h3 {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 16px;
-      letter-spacing: -0.01em;
-    }
 
     /* Enhanced Price Comparison Table Styles */
     .price-comparison-table {
@@ -728,39 +826,11 @@
       -webkit-backdrop-filter: var(--blur-light);
     }
 
-    .table-header {
-      display: grid;
-      grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr;
-      background: var(--accent-glass);
-      border-bottom: 2px solid var(--border-glass);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
 
-    .header-cell {
-      padding: 20px 24px;
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--text-primary);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
-    }
-
-    .header-cell svg {
-      width: 16px;
-      height: 16px;
-      opacity: 0.7;
-      flex-shrink: 0;
-    }
 
     .table-row {
       display: grid;
-      grid-template-columns: 2.5fr 1.5fr 1.2fr 1fr;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
       border-bottom: 1px solid var(--border-subtle);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       position: relative;
@@ -795,7 +865,6 @@
     .product-cell {
       display: flex;
       align-items: center;
-      gap: 20px;
       padding: 24px;
     }
 
@@ -1430,13 +1499,7 @@
       display: inline;
     }
 
-    .recommendation-card p {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      letter-spacing: -0.005em;
-    }
+
 
     .empty-state {
       text-align: center;
@@ -1543,6 +1606,21 @@
         padding: 12px 24px;
       }
       
+      .brand-logo-large {
+        height: 65px;
+        padding: 0 24px;
+        margin-right: 12px;
+        min-width: 0;
+        max-width: calc(100vw - 80px);
+      }
+      
+      .brand-logo-large img {
+        width: 100%;
+        height: 52px;
+        max-width: 200px;
+        object-fit: contain;
+      }
+      
       .hero-title {
         font-size: 32px;
       }
@@ -1563,12 +1641,8 @@
       }
 
       /* Tablet table adjustments */
-      .table-header {
-        grid-template-columns: 1.8fr 1fr 1fr 0.8fr;
-      }
-      
       .table-row {
-        grid-template-columns: 1.8fr 1fr 1fr 0.8fr;
+        grid-template-columns: 1.8fr 1fr 1fr 1fr;
       }
 
       .product-cell {
@@ -1613,16 +1687,51 @@
     }
 
     @media (max-width: 600px) {
+      /* Universal mobile constraints */
+      * {
+        max-width: 100vw;
+        box-sizing: border-box;
+      }
+      
+      /* Ensure theme toggle is properly sized for touch */
+      .theme-toggle {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        min-height: 48px;
+      }
+      
       .main-container {
-        padding: 16px;
+        padding: 12px;
+        max-width: 100vw;
+        box-sizing: border-box;
       }
       
       .nav-content {
-        padding: 12px 16px;
+        padding: 8px 12px;
+        max-width: 100vw;
+        box-sizing: border-box;
+      }
+      
+      .brand-logo-large {
+        height: 50px;
+        padding: 0 8px;
+        margin-right: 8px;
+        min-width: 0;
+        flex: 1;
+        max-width: calc(100vw - 80px);
+      }
+      
+      .brand-logo-large img {
+        width: 100%;
+        height: 40px;
+        max-width: 180px;
+        object-fit: contain;
       }
       
       .photo-catalogue {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        gap: 8px;
       }
       
       .hero-title {
@@ -1630,7 +1739,9 @@
       }
       
       .panel-content {
-        padding: 16px;
+        padding: 12px;
+        max-width: 100%;
+        box-sizing: border-box;
       }
       
       .analysis-section {
@@ -1645,35 +1756,31 @@
         padding: 24px;
       }
       
-      /* Mobile table adjustments */
+      /* Mobile table adjustments - NO HORIZONTAL SCROLL */
       .price-comparison-table {
-        overflow-x: auto;
+        overflow-x: visible;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 100vw;
+        box-sizing: border-box;
       }
 
-      .table-header {
-        grid-template-columns: 180px 100px 90px 100px;
-        min-width: 470px;
-      }
-      
       .table-row {
-        grid-template-columns: 180px 100px 90px 100px;
-        min-width: 470px;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        min-width: auto;
       }
       
       .product-cell {
-        padding: 16px 8px;
-        gap: 8px;
-        min-width: 180px;
-      }
-      
-      .product-image {
-        width: 40px;
-        height: 40px;
+        padding: 12px 8px;
+        min-width: auto;
       }
       
       .product-name {
-        font-size: 12px;
+        font-size: 11px;
         line-height: 1.3;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
       }
 
       .product-description {
@@ -1681,8 +1788,8 @@
     }
 
       .store-cell {
-        padding: 16px 6px;
-        min-width: 100px;
+        padding: 12px 6px;
+        min-width: auto;
       }
       
       .store-info {
@@ -1690,12 +1797,12 @@
       }
       
       .store-logo, .store-icon {
-        width: 28px;
-        height: 28px;
+        width: 24px;
+        height: 24px;
       }
       
       .store-name {
-        font-size: 10px;
+        font-size: 9px;
         text-align: center;
       }
 
@@ -1704,56 +1811,60 @@
       }
       
       .price-cell {
-        padding: 16px 6px;
-        min-width: 90px;
+        padding: 12px 6px;
+        min-width: auto;
       }
       
       .price-value {
-        font-size: 16px;
+        font-size: 14px;
       }
 
       .original-price {
-        font-size: 12px;
+        font-size: 10px;
       }
 
       .savings-badge {
-        font-size: 9px;
-        padding: 2px 6px;
+        font-size: 8px;
+        padding: 2px 4px;
       }
 
       .best-price::before {
-        font-size: 8px;
-        padding: 2px 6px;
+        font-size: 7px;
+        padding: 2px 4px;
         top: -8px;
       }
 
       .action-cell {
-        padding: 16px 4px;
-        min-width: 100px;
+        padding: 12px 4px;
+        min-width: auto;
         gap: 4px;
       }
       
       .buy-button {
-        padding: 6px 8px;
-        font-size: 10px;
-        gap: 2px;
+        padding: 10px 12px;
+        font-size: 11px;
+        gap: 4px;
+        min-height: 44px;
+        min-width: 44px;
       }
 
       .buy-button svg {
-        width: 10px;
-        height: 10px;
+        width: 12px;
+        height: 12px;
       }
 
       .compare-button {
-        font-size: 9px;
-        padding: 4px 6px;
+        font-size: 10px;
+        padding: 8px 10px;
         white-space: nowrap;
+        min-height: 36px;
       }
 
       .find-nearby-button {
-        font-size: 9px;
-        padding: 4px 6px;
+        font-size: 10px;
+        padding: 8px 10px;
         white-space: nowrap;
+        min-height: 36px;
       }
 
       /* Show mobile text on small screens */
@@ -1832,7 +1943,9 @@
       }
 
       .discount-card {
-        padding: 16px;
+        padding: 12px;
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
       .discount-title {
@@ -1843,6 +1956,49 @@
         font-size: 13px;
       }
 
+      /* Mobile product name section */
+      .main-product-name {
+        font-size: 24px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        hyphens: auto;
+        text-align: center;
+      }
+
+      .product-name-section {
+        margin: 12px 0;
+        padding: 12px;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .nearby-stores-section {
+        margin: 12px 0;
+        padding: 12px;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .nearby-stores-quick-list {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 8px;
+      }
+
+      .nearby-store-card {
+        padding: 12px;
+      }
+
+      .nearby-store-name {
+        font-size: 13px;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        text-align: center;
+      }
+
+      .nearby-store-action {
+        padding: 6px 12px;
+        font-size: 11px;
+      }
 
     }
   </style>
@@ -1851,13 +2007,9 @@
   <nav class="nav-bar">
     <div class="nav-content">
       <div class="brand-section">
-        <div class="brand-logo">
+        <div class="brand-logo-large">
           <img src="/assets/PricePalLogo.png" alt="PricePal">
   </div>
-        <div class="brand-text">
-          <div class="brand-name">PricePal</div>
-          <div class="brand-tagline">Intelligent Price Discovery</div>
-        </div>
       </div>
       <div class="nav-actions">
         <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
@@ -1922,8 +2074,8 @@
       <div id="analysis-section" class="analysis-section" style="display: none;">
         <div class="panel glass-elevated">
           <div class="panel-header">
-            <div class="panel-title">Market Analysis</div>
-            <div class="panel-subtitle">Real-time price intelligence</div>
+            <div class="panel-title">Alternative Products</div>
+            <div class="panel-subtitle">Alternative products at similar prices</div>
           </div>
           <div class="panel-content">
             <div id="price-comparison" class="price-grid">
@@ -1932,18 +2084,11 @@
           </div>
   </div>
   
-        <div id="recommendation-section" style="display: none;">
-          <div class="recommendation-card">
-            <h3>Strategic Recommendation</h3>
-            <p id="recommendation-text">
-              <!-- Recommendation will be inserted here -->
-            </p>
-          </div>
-        </div>
-        
         <div id="discount-section" style="display: none;">
           <!-- Discount content will be inserted here -->
         </div>
+        
+
       </div>
     </div>
   </div>
@@ -1977,29 +2122,71 @@
          recommendation: '',
          summary: '',
          originalText: analysisText,
-         discounts: []
+         discounts: [],
+         actualProductName: '',
+         nearbyStores: []
        };
 
        try {
-        // Strategy 1: More robust JSON extraction
-        console.log(`[FRONTEND] Full analysis text:`, analysisText);
-        
-        // Try multiple patterns to find JSON
-        let jsonText = null;
-        
-        // Pattern 1: Look for ```json blocks
-        const jsonBlockMatch = analysisText.match(/```json\s*([\s\S]*?)\s*```/);
-        if (jsonBlockMatch) {
-          jsonText = jsonBlockMatch[1];
-          console.log(`[FRONTEND] Found JSON block:`, jsonText);
+        // Strategy 0: Extract the actual product name using the new format
+        const productBlock = analysisText.match(/\{\s*Image Product Name:\s*([^}]+?)\s*Stores Where the Product is Sold in San Francisco:/i);
+        if (productBlock) {
+          parsed.actualProductName = productBlock[1].trim();
+          console.log(`[FRONTEND] Found actual product name: "${parsed.actualProductName}"`);
+        } else {
+          const simpleProductMatch = analysisText.match(/Image Product Name:\s*([^\n\r]+)/i);
+          if (simpleProductMatch) {
+            parsed.actualProductName = simpleProductMatch[1].trim();
+            console.log(`[FRONTEND] Found simple product name: "${parsed.actualProductName}"`);
+          }
+        }
+
+        // Extract nearby stores from the new format
+        const storesMatch = analysisText.match(/Stores Where the Product is Sold in San Francisco:\s*\[(.*?)\]/i);
+        if (storesMatch) {
+          const storesText = storesMatch[1];
+          // Split by comma and clean up each store name
+          parsed.nearbyStores = storesText.split(',').map(store => store.trim()).filter(store => store && store !== '');
+          console.log(`[FRONTEND] Found nearby stores: ${parsed.nearbyStores.join(', ')}`);
         }
         
-        // Pattern 2: Look for standalone JSON arrays (fallback)
-        if (!jsonText) {
-          const arrayMatch = analysisText.match(/(\[[\s\S]*?\])/);
-          if (arrayMatch) {
-            jsonText = arrayMatch[1];
-            console.log(`[FRONTEND] Found JSON array:`, jsonText);
+        // Strategy 1: More robust JSON extraction for products
+        console.log(`[FRONTEND] Full analysis text:`, analysisText);
+        
+        // Find ALL JSON blocks in the text
+        const jsonBlocks = analysisText.match(/```json\s*([\s\S]*?)\s*```/g) || [];
+        const allJsonBlocks = [...jsonBlocks];
+        
+        // Also look for standalone JSON arrays
+        const standaloneArrays = analysisText.match(/\[[\s\S]*?\]/g) || [];
+        allJsonBlocks.push(...standaloneArrays);
+        
+        console.log(`[FRONTEND] Found ${allJsonBlocks.length} total JSON blocks`);
+        
+        // Try to find the FIRST array that contains product alternatives (not discounts)
+        let jsonText = null;
+        
+        for (const block of allJsonBlocks) {
+          const cleanJson = block.replace(/```json|```/g, '').trim();
+          try {
+            const testData = JSON.parse(cleanJson);
+            console.log(`[FRONTEND] Testing JSON block:`, testData);
+            
+            // Check if this looks like alternatives product data (should be an array with Product Name, not Discount Title)
+            if (Array.isArray(testData) && testData.length > 0) {
+              const firstItem = testData[0];
+              console.log(`[FRONTEND] First item structure:`, Object.keys(firstItem));
+              
+              // This should be alternatives if it has Product Name but NOT Discount Title
+              if ((firstItem['Product Name'] || firstItem.ProductName || firstItem.name) && 
+                  !firstItem['Discount Title'] && !firstItem.title) {
+                jsonText = cleanJson;
+                console.log(`[FRONTEND] Found alternatives JSON block:`, jsonText);
+                break;
+              }
+            }
+          } catch (e) {
+            console.error(`[FRONTEND] JSON parse error:`, e);
           }
         }
         
@@ -2030,8 +2217,14 @@
               parsed.products = products.map((item, index) => {
                 console.log(`[FRONTEND] Processing item ${index}:`, item);
                 
+                // Extract name with multiple fallbacks
+                const productName = item['Product Name'] || item.ProductName || item.name || item.title || `Product ${index + 1}`;
+                
+                // Extract store with multiple fallbacks  
+                const storeName = item['Product Store'] || item.ProductStore || item.store || item.retailer || 'Online Store';
+                
                 // Extract price from string values like "$1599"
-                const priceValue = item['Product Price'] || item.ProductPrice || item.price || '0';
+                const priceValue = item['Product Price'] || item.ProductPrice || item.price || item.cost || '0';
                 let price = 0;
                 let priceDisplay = '$0.00';
                 
@@ -2040,41 +2233,46 @@
                   priceDisplay = `$${price.toFixed(2)}`;
                 } else if (typeof priceValue === 'string') {
                   // Remove $ and parse number
-                  const cleanPrice = priceValue.replace(/[$,]/g, '');
-                  price = parseFloat(cleanPrice);
-                  priceDisplay = priceValue; // Keep original formatting
+                  const cleanPrice = priceValue.replace(/[$,\s]/g, '');
+                  const parsedPrice = parseFloat(cleanPrice);
+                  if (!isNaN(parsedPrice)) {
+                    price = parsedPrice;
+                    priceDisplay = priceValue.includes('$') ? priceValue : `$${parsedPrice.toFixed(2)}`;
+                  } else {
+                    priceDisplay = priceValue;
+                  }
                   
                   console.log(`[FRONTEND] Price "${priceValue}" -> ${price} (display: ${priceDisplay})`);
                 }
                 
-                                  const processedItem = {
-                    name: item['Product Name'] || item.ProductName || item.name || 'Unknown Product',
-                    store: item['Product Store'] || item.ProductStore || item.store || 'Unknown Store',
-                    price: price,
-                    priceDisplay: priceDisplay,
-                    originalPrice: item.originalPrice || null,
-                    savings: item.savings || null,
-                    url: item['Product URL'] || item.ProductURL || item.url || null,
-                    productImageUrl: item['Product Image URL'] || item.ProductImageURL || item.productImageUrl || null,
-                    storeImageUrl: item['Product Store Image URL'] || item.ProductStoreImageURL || item['Product store Image URL'] || item.storeImageUrl || null,
-                    rating: item.rating || null,
-                    description: item.description || item.ProductDescription || null,
-                    availability: item.availability || item.inStock || null
-                  };
-                  
-                  // Debug image URLs
-                  console.log(`[FRONTEND] Item ${index} URLs:`, {
-                    productImage: processedItem.productImageUrl,
-                    storeImage: processedItem.storeImageUrl,
-                    productLink: processedItem.url
-                  });
+                const processedItem = {
+                  name: productName,
+                  store: storeName,
+                  price: price,
+                  priceDisplay: priceDisplay,
+                  originalPrice: item.originalPrice || item['Original Price'] || null,
+                  savings: item.savings || item['Savings'] || null,
+                  url: item['Product URL'] || item.ProductURL || item.url || item.link || null,
+                  productImageUrl: item['Product Image URL'] || item.ProductImageURL || item.productImageUrl || item.imageUrl || null,
+                  storeImageUrl: item['Product Store Image URL'] || item.ProductStoreImageURL || item['Product store Image URL'] || item.storeImageUrl || null,
+                  rating: item.rating || item['Rating'] || null,
+                  description: item.description || item.ProductDescription || item['Product Description'] || null,
+                  availability: item.availability || item.inStock || item['In Stock'] || null
+                };
                 
-                console.log(`[FRONTEND] Final processed item ${index}:`, processedItem);
+                // Debug the processed item
+                console.log(`[FRONTEND] Final processed item ${index}:`, {
+                  name: processedItem.name,
+                  store: processedItem.store,
+                  price: processedItem.price,
+                  priceDisplay: processedItem.priceDisplay
+                });
+                
                 return processedItem;
               });
               
-                             console.log(`[FRONTEND] Successfully created ${parsed.products.length} product objects`);
-             }
+              console.log(`[FRONTEND] Successfully created ${parsed.products.length} product objects`);
+            }
            } catch (e) {
              console.error(`[FRONTEND] JSON parsing failed:`, e);
              console.error(`[FRONTEND] Failed JSON content:`, jsonText);
@@ -2084,36 +2282,72 @@
            console.warn(`[FRONTEND] No JSON found in analysis text`);
          }
 
-         // Strategy 1b: Look for discount/coupon JSON blocks
-         const discountMatches = analysisText.match(/```json\s*([\s\S]*?)\s*```/g);
-         if (discountMatches) {
-           for (const match of discountMatches) {
+         // Strategy 1b: Look for discount/coupon information
+         // First try structured format
+         const discountSection = analysisText.match(/(?:Mention 3 Coupons and Discounts|3 Coupons and Discounts)[\s\S]*?(?=\n\n|\n[A-Z]|$)/i);
+         if (discountSection) {
+           const discountText = discountSection[0];
+           const discountBlocks = discountText.split(/Discount Title:/i).slice(1);
+           
+           if (discountBlocks.length > 0) {
+             parsed.discounts = discountBlocks.map(block => {
+               const titleMatch = block.match(/^([^\n]*)/);
+               const descMatch = block.match(/Discount Description:\s*([^\n]*)/i);
+               const storeMatch = block.match(/Discount Store:\s*([^\n]*)/i);
+               const imageMatch = block.match(/Discount Store Image URL[^\n]*:\s*([^\n]*)/i);
+               
+               return {
+                 title: titleMatch ? titleMatch[1].trim() : '',
+                 description: descMatch ? descMatch[1].trim() : '',
+                 store: storeMatch ? storeMatch[1].trim() : 'Various Stores',
+                 storeImageUrl: imageMatch ? imageMatch[1].trim() : null
+               };
+             }).filter(discount => discount.title);
+             
+             console.log(`[FRONTEND] Successfully parsed ${parsed.discounts.length} structured discounts`);
+           }
+         }
+
+         // Try JSON discount blocks - look for arrays with "Discount Title" 
+         if (parsed.discounts.length === 0) {
+           for (const block of allJsonBlocks) {
+             const cleanJson = block.replace(/```json|```/g, '').trim();
              try {
-               const cleanJson = match.replace(/```json|```/g, '').trim();
                const data = JSON.parse(cleanJson);
                
-               // Look for discount arrays
-               let discounts = [];
-               if (Array.isArray(data)) {
-                 // Check if this array contains discount objects
-                 if (data.length > 0 && data[0]['Discount Title']) {
-                   discounts = data;
-                 }
-               }
-               
-               if (discounts.length > 0) {
-                 parsed.discounts = discounts.map(item => ({
-                   title: item['Discount Title'] || item.title || 'Special Offer',
-                   description: item['Discount Description'] || item.description || '',
-                   store: item['Discount Store'] || item.store || 'Various Stores',
-                   storeImageUrl: item['Discount Store Image URL'] || item.storeImageUrl || null
+               // Check if this looks like discount data - should have "Discount Title" and NOT "Product Name"
+               if (Array.isArray(data) && data.length > 0 && 
+                   data[0]['Discount Title'] &&
+                   !data[0]['Product Name']) {
+                 parsed.discounts = data.map(item => ({
+                   title: item['Discount Title'] || '',
+                   description: item['Discount Description'] || '',
+                   store: item['Discount Store'] || 'Various Stores',
+                   storeImageUrl: item['Discount Store Image URL'] || null
                  }));
-                 console.log(`[FRONTEND] Successfully parsed ${parsed.discounts.length} discounts`);
+                 console.log(`[FRONTEND] Successfully parsed ${parsed.discounts.length} JSON discounts`);
                  break;
                }
              } catch (e) {
-               console.error(`[FRONTEND] Discount JSON parsing failed:`, e);
+               // Continue to next block
              }
+           }
+         }
+
+         // Fallback: Look for any discount mentions in text
+         if (parsed.discounts.length === 0) {
+           const discountLines = analysisText.split('\n').filter(line => 
+             /(?:save|discount|coupon|off|promo)/i.test(line) && line.trim().length > 20
+           );
+           
+           if (discountLines.length > 0) {
+             parsed.discounts = discountLines.slice(0, 3).map((line, index) => ({
+               title: `Savings Opportunity ${index + 1}`,
+               description: line.trim(),
+               store: 'Multiple Stores',
+               storeImageUrl: null
+             }));
+             console.log(`[FRONTEND] Found ${parsed.discounts.length} discount mentions from text`);
            }
          }
          
@@ -2159,24 +2393,35 @@
           }
         }
 
-        // Strategy 4: Extract price information from text
-        const pricePattern = /\$(\d+(?:\.\d{2})?)/g;
-        const storePattern = /(amazon|walmart|best buy|target|costco|ebay|newegg)/gi;
-        
-        const prices = [...analysisText.matchAll(pricePattern)].map(m => parseFloat(m[1]));
-        const stores = [...analysisText.matchAll(storePattern)].map(m => m[1]);
-        
-        if (prices.length > 0 && parsed.products.length === 0) {
-          for (let i = 0; i < Math.min(prices.length, 3); i++) {
-            parsed.products.push({
-              name: 'Product Alternative',
-              store: stores[i] || 'Online Store',
-              price: prices[i],
-              originalPrice: null,
-              savings: null
-            });
-          }
-        }
+                 // Strategy 4: Extract price information from text as LAST RESORT
+         if (parsed.products.length === 0) {
+           console.log(`[FRONTEND] No products found in JSON, trying text extraction as fallback`);
+           const pricePattern = /\$(\d+(?:\.\d{2})?)/g;
+           const storePattern = /(amazon|walmart|best buy|target|costco|ebay|newegg|apple|microsoft|dell|hp)/gi;
+           
+           const prices = [...analysisText.matchAll(pricePattern)].map(m => parseFloat(m[1]));
+           const stores = [...analysisText.matchAll(storePattern)].map(m => m[1]);
+           
+           if (prices.length > 0) {
+             for (let i = 0; i < Math.min(prices.length, 3); i++) {
+               parsed.products.push({
+                 name: `Alternative Product ${i + 1}`,
+                 store: stores[i] || 'Online Store',
+                 price: prices[i],
+                 priceDisplay: `$${prices[i].toFixed(2)}`,
+                 originalPrice: null,
+                 savings: null,
+                 url: null,
+                 productImageUrl: null,
+                 storeImageUrl: null,
+                 rating: null,
+                 description: null,
+                 availability: null
+               });
+             }
+             console.log(`[FRONTEND] Created ${parsed.products.length} fallback products from text`);
+           }
+         }
 
         // Generate summary
         if (parsed.products.length > 0) {
@@ -2217,7 +2462,116 @@
         'apple store': 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg',
         'costco': 'https://upload.wikimedia.org/wikipedia/commons/5/59/Costco_Wholesale_logo_2010-10-26.svg',
         'ebay': 'https://upload.wikimedia.org/wikipedia/commons/1/1b/EBay_logo.svg',
-        'newegg': 'https://upload.wikimedia.org/wikipedia/commons/0/07/Newegg_logo.svg'
+        'newegg': 'https://upload.wikimedia.org/wikipedia/commons/0/07/Newegg_logo.svg',
+        'home depot': 'https://upload.wikimedia.org/wikipedia/commons/5/5f/TheHomeDepot.svg',
+        'homedepot': 'https://upload.wikimedia.org/wikipedia/commons/5/5f/TheHomeDepot.svg',
+        'lowes': 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Lowe%27s_logo.svg',
+        'lowe\'s': 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Lowe%27s_logo.svg',
+        'kroger': 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Kroger_logo.svg',
+        'safeway': 'https://upload.wikimedia.org/wikipedia/commons/8/8a/Safeway_logo.svg',
+        'cvs': 'https://upload.wikimedia.org/wikipedia/commons/6/68/CVS_Pharmacy_logo.svg',
+        'walgreens': 'https://upload.wikimedia.org/wikipedia/commons/6/60/Walgreens_logo.svg',
+        'rite aid': 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Rite_Aid_logo.svg',
+        'riteaid': 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Rite_Aid_logo.svg',
+        'macy\'s': 'https://upload.wikimedia.org/wikipedia/commons/b/b6/Macy%27s_logo.svg',
+        'macys': 'https://upload.wikimedia.org/wikipedia/commons/b/b6/Macy%27s_logo.svg',
+        'jcpenney': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/JCPenney_logo.svg',
+        'kohl\'s': 'https://upload.wikimedia.org/wikipedia/commons/9/9b/Kohl%27s_logo.svg',
+        'kohls': 'https://upload.wikimedia.org/wikipedia/commons/9/9b/Kohl%27s_logo.svg',
+        'sears': 'https://upload.wikimedia.org/wikipedia/commons/f/f5/Sears_logo.svg',
+        'gamestop': 'https://upload.wikimedia.org/wikipedia/commons/6/6e/GameStop_logo.svg',
+        'staples': 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Staples_logo.svg',
+        'office depot': 'https://upload.wikimedia.org/wikipedia/commons/9/9e/Office_Depot_logo.svg',
+        'officedepot': 'https://upload.wikimedia.org/wikipedia/commons/9/9e/Office_Depot_logo.svg',
+        'petco': 'https://upload.wikimedia.org/wikipedia/commons/0/0f/Petco_logo.svg',
+        'petsmart': 'https://upload.wikimedia.org/wikipedia/commons/6/6f/PetSmart_logo.svg',
+        'bed bath beyond': 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Bed_Bath_%26_Beyond_logo.svg',
+        'bath body works': 'https://upload.wikimedia.org/wikipedia/commons/4/4b/Bath_%26_Body_Works_logo.svg',
+        'victoria secret': 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Victoria%27s_Secret_logo.svg',
+        'tj maxx': 'https://upload.wikimedia.org/wikipedia/commons/1/1c/T.J._Maxx_logo.svg',
+        'tjmaxx': 'https://upload.wikimedia.org/wikipedia/commons/1/1c/T.J._Maxx_logo.svg',
+        'marshalls': 'https://upload.wikimedia.org/wikipedia/commons/2/29/Marshalls_logo.svg',
+        'nordstrom': 'https://upload.wikimedia.org/wikipedia/commons/1/1b/Nordstrom_logo.svg',
+        'gap': 'https://upload.wikimedia.org/wikipedia/commons/4/44/Gap_logo.svg',
+        'old navy': 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Old_Navy_logo.svg',
+        'oldnavy': 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Old_Navy_logo.svg',
+        'banana republic': 'https://upload.wikimedia.org/wikipedia/commons/a/a7/Banana_Republic_logo.svg',
+        'express': 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Express_logo.svg',
+        'h&m': 'https://upload.wikimedia.org/wikipedia/commons/5/53/H%26M-Logo.svg',
+        'forever 21': 'https://upload.wikimedia.org/wikipedia/commons/4/44/Forever_21_logo.svg',
+        'forever21': 'https://upload.wikimedia.org/wikipedia/commons/4/44/Forever_21_logo.svg',
+        'zara': 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Zara_Logo.svg',
+        'uniqlo': 'https://upload.wikimedia.org/wikipedia/commons/9/92/UNIQLO_logo.svg',
+        'nike': 'https://upload.wikimedia.org/wikipedia/commons/a/a6/Logo_NIKE.svg',
+        'adidas': 'https://upload.wikimedia.org/wikipedia/commons/2/20/Adidas_Logo.svg',
+        'foot locker': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Foot_Locker_logo.svg',
+        'footlocker': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Foot_Locker_logo.svg',
+        'dick\'s sporting goods': 'https://upload.wikimedia.org/wikipedia/commons/d/d6/Dick%27s_Sporting_Goods_logo.svg',
+        'dicks': 'https://upload.wikimedia.org/wikipedia/commons/d/d6/Dick%27s_Sporting_Goods_logo.svg',
+        'barnes noble': 'https://upload.wikimedia.org/wikipedia/commons/c/c0/Barnes_%26_Noble_logo.svg',
+        'barnes & noble': 'https://upload.wikimedia.org/wikipedia/commons/c/c0/Barnes_%26_Noble_logo.svg',
+        'toys r us': 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Toys_R_Us_logo.svg',
+        'toysrus': 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Toys_R_Us_logo.svg',
+        'radio shack': 'https://upload.wikimedia.org/wikipedia/commons/a/a5/RadioShack_logo.svg',
+        'radioshack': 'https://upload.wikimedia.org/wikipedia/commons/a/a5/RadioShack_logo.svg',
+        'circuit city': 'https://upload.wikimedia.org/wikipedia/commons/1/1c/Circuit_City_logo.svg',
+        'frys': 'https://upload.wikimedia.org/wikipedia/commons/4/4a/Frys_logo.svg',
+        'micro center': 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Micro_Center_logo.svg',
+        'microcenter': 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Micro_Center_logo.svg',
+        'bose': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Bose_logo.svg',
+        'meta': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg',
+        'facebook': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg',
+        'sony': 'https://upload.wikimedia.org/wikipedia/commons/c/ca/Sony_logo.svg',
+        'samsung': 'https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg',
+        'lg': 'https://upload.wikimedia.org/wikipedia/commons/2/20/LG_logo_%282015%29.svg',
+        'panasonic': 'https://upload.wikimedia.org/wikipedia/commons/0/0a/Panasonic_logo_%28Blue%29.svg',
+        'canon': 'https://upload.wikimedia.org/wikipedia/commons/0/0b/Canon_logo.svg',
+        'nikon': 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Nikon_logo.svg',
+        'gopro': 'https://upload.wikimedia.org/wikipedia/commons/4/4a/GoPro_logo.svg',
+        'fitbit': 'https://upload.wikimedia.org/wikipedia/commons/f/f3/Fitbit_logo.svg',
+        'garmin': 'https://upload.wikimedia.org/wikipedia/commons/5/5a/Garmin_logo.svg',
+        'logitech': 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Logitech_logo_%282015%29.svg',
+        'razer': 'https://upload.wikimedia.org/wikipedia/commons/f/f0/Razer_logo.svg',
+        'corsair': 'https://upload.wikimedia.org/wikipedia/commons/f/f8/Corsair_logo.svg',
+        'alienware': 'https://upload.wikimedia.org/wikipedia/commons/b/b6/Alienware_logo.svg',
+        'asus': 'https://upload.wikimedia.org/wikipedia/commons/2/2e/ASUS_logo.svg',
+        'msi': 'https://upload.wikimedia.org/wikipedia/commons/c/c0/MSI_logo.svg',
+        'acer': 'https://upload.wikimedia.org/wikipedia/commons/0/00/Acer_logo.svg',
+        'lenovo': 'https://upload.wikimedia.org/wikipedia/commons/b/b8/Lenovo_logo.svg',
+        'toshiba': 'https://upload.wikimedia.org/wikipedia/commons/1/1e/Toshiba_logo.svg',
+        'philips': 'https://upload.wikimedia.org/wikipedia/commons/5/52/Philips_logo.svg',
+        'google': 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
+        'google store': 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
+        'youtube': 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg',
+        'twitter': 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg',
+        'x': 'https://upload.wikimedia.org/wikipedia/commons/5/5a/X_icon_2.svg',
+        'instagram': 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
+        'snapchat': 'https://upload.wikimedia.org/wikipedia/commons/c/ce/Snapchat_logo.svg',
+        'tiktok': 'https://upload.wikimedia.org/wikipedia/commons/3/34/Ionicons_logo-tiktok.svg',
+        'spotify': 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg',
+        'netflix': 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg',
+        'disney': 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',
+        'disney+': 'https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg',
+        'hulu': 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Hulu_Logo.svg',
+        'paramount+': 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Paramount_Plus_logo.svg',
+        'hbo': 'https://upload.wikimedia.org/wikipedia/commons/d/de/HBO_logo.svg',
+        'roku': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Roku_logo.svg',
+        'steam': 'https://upload.wikimedia.org/wikipedia/commons/8/83/Steam_icon_logo.svg',
+        'epic games': 'https://upload.wikimedia.org/wikipedia/commons/3/31/Epic_Games_logo.svg',
+        'nvidia': 'https://upload.wikimedia.org/wikipedia/commons/2/21/Nvidia_logo.svg',
+        'amd': 'https://upload.wikimedia.org/wikipedia/commons/7/7c/AMD_Logo.svg',
+        'intel': 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Intel-logo.svg',
+        'oculus': 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Oculus_logo.svg',
+        'playstation': 'https://upload.wikimedia.org/wikipedia/commons/0/00/PlayStation_logo.svg',
+        'xbox': 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Xbox_one_logo.svg',
+        'nintendo': 'https://upload.wikimedia.org/wikipedia/commons/0/0d/Nintendo.svg',
+        'tesla': 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Tesla_logo.png',
+        'uber': 'https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png',
+        'lyft': 'https://upload.wikimedia.org/wikipedia/commons/a/a0/Lyft_logo.svg',
+        'airbnb': 'https://upload.wikimedia.org/wikipedia/commons/6/69/Airbnb_Logo_B%C3%A9lo.svg',
+        'booking': 'https://upload.wikimedia.org/wikipedia/commons/b/be/Booking.com_logo.svg',
+        'expedia': 'https://upload.wikimedia.org/wikipedia/commons/2/2e/Expedia_logo.svg',
+        'priceline': 'https://upload.wikimedia.org/wikipedia/commons/1/1f/Priceline.com_Logo.svg'
       };
       
              // Return Clearbit URL first, fallback handled by error handlers
@@ -2239,7 +2593,61 @@
         'apple store': 'apple.com',
         'costco': 'costco.com',
         'ebay': 'ebay.com',
-        'newegg': 'newegg.com'
+        'newegg': 'newegg.com',
+        'bose': 'bose.com',
+        'meta': 'meta.com',
+        'facebook': 'facebook.com',
+        'sony': 'sony.com',
+        'samsung': 'samsung.com',
+        'lg': 'lg.com',
+        'panasonic': 'panasonic.com',
+        'canon': 'canon.com',
+        'nikon': 'nikon.com',
+        'gopro': 'gopro.com',
+        'fitbit': 'fitbit.com',
+        'garmin': 'garmin.com',
+        'logitech': 'logitech.com',
+        'razer': 'razer.com',
+        'corsair': 'corsair.com',
+        'alienware': 'alienware.com',
+        'asus': 'asus.com',
+        'msi': 'msi.com',
+        'acer': 'acer.com',
+        'lenovo': 'lenovo.com',
+        'toshiba': 'toshiba.com',
+        'philips': 'philips.com',
+        'google': 'google.com',
+        'google store': 'store.google.com',
+        'youtube': 'youtube.com',
+        'twitter': 'twitter.com',
+        'x': 'x.com',
+        'instagram': 'instagram.com',
+        'snapchat': 'snapchat.com',
+        'tiktok': 'tiktok.com',
+        'spotify': 'spotify.com',
+        'netflix': 'netflix.com',
+        'disney': 'disney.com',
+        'disney+': 'disneyplus.com',
+        'hulu': 'hulu.com',
+        'paramount+': 'paramountplus.com',
+        'hbo': 'hbo.com',
+        'roku': 'roku.com',
+        'steam': 'store.steampowered.com',
+        'epic games': 'epicgames.com',
+        'nvidia': 'nvidia.com',
+        'amd': 'amd.com',
+        'intel': 'intel.com',
+        'oculus': 'oculus.com',
+        'playstation': 'playstation.com',
+        'xbox': 'xbox.com',
+        'nintendo': 'nintendo.com',
+        'tesla': 'tesla.com',
+        'uber': 'uber.com',
+        'lyft': 'lyft.com',
+        'airbnb': 'airbnb.com',
+        'booking': 'booking.com',
+        'expedia': 'expedia.com',
+        'priceline': 'priceline.com'
       };
       
       return domainMap[storeName.toLowerCase()] || `${storeName.toLowerCase()}.com`;
@@ -2494,6 +2902,26 @@
       }
     }
 
+    function showNearbyStoresForProduct(stores, productName) {
+      if (!stores || stores.length === 0) return;
+      
+      const nearbyStoresList = document.getElementById('nearby-stores-list');
+      
+      nearbyStoresList.innerHTML = stores.slice(0, 4).map(store => `
+        <div class="nearby-store-card">
+          <div class="store-logo-container">
+            <img src="${getStoreLogoUrl(store)}" alt="${store}" class="nearby-store-logo" onerror="this.style.display='none'">
+          </div>
+          <div class="nearby-store-name">${store}</div>
+          <a href="#" class="nearby-store-action" onclick="findNearbyStores('${store}', '${productName}'); return false;">
+            Find Locations
+          </a>
+        </div>
+      `).join('');
+      
+      document.getElementById('nearby-stores-section').style.display = 'block';
+    }
+
     // Enhanced photo management with request throttling
     let isCheckingPhotos = false;
     let pollInterval = null;
@@ -2605,6 +3033,13 @@
             </div>
           </div>
         </div>
+        <div id="product-name-section" class="product-name-section" style="display: none;">
+          <h1 id="main-product-name" class="main-product-name"></h1>
+        </div>
+        <div id="nearby-stores-section" class="nearby-stores-section" style="display: none;">
+          <h3 class="nearby-stores-title">Available Near You</h3>
+          <div id="nearby-stores-list" class="nearby-stores-quick-list"></div>
+        </div>
       `;
     }
 
@@ -2709,7 +3144,7 @@
          analysisCache.set(requestId, data.analysis);
          displayAnalysis(data.analysis);
          
-             } catch (error) {
+      } catch (error) {
          activeAnalysisRequests.delete(requestId);
          
          if (error.name === 'AbortError') {
@@ -2743,6 +3178,27 @@
          console.log(`[FRONTEND] Successfully parsed analysis:`, parsed);
          console.log(`[FRONTEND] Found ${parsed.products?.length || 0} products`);
          
+         // Show the main product name below the photo
+         let mainProductName = '';
+         if (parsed.actualProductName) {
+           mainProductName = parsed.actualProductName;
+         } else if (parsed.products.length > 0) {
+           mainProductName = parsed.products[0].name;
+         }
+         
+         if (mainProductName) {
+           document.getElementById('main-product-name').textContent = mainProductName;
+           document.getElementById('product-name-section').style.display = 'block';
+           
+                             // Show nearby stores section - ONLY use parsed nearby stores (stores where the original product can be bought)
+          console.log(`[FRONTEND] Nearby stores found:`, parsed.nearbyStores);
+          if (parsed.nearbyStores.length > 0) {
+            showNearbyStoresForProduct(parsed.nearbyStores, mainProductName);
+          } else {
+            console.log(`[FRONTEND] No nearby stores found - nearbyStores array is empty`);
+          }
+         }
+         
          // Show the analysis section with proper vertical stacking
          const analysisSection = document.getElementById('analysis-section');
          analysisSection.style.display = 'block';
@@ -2755,37 +3211,6 @@
          
          const priceTable = `
            <div class="price-comparison-table">
-             <div class="table-header">
-               <div class="header-cell">
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                   <line x1="3" y1="6" x2="21" y2="6"/>
-                   <path d="M16 10a4 4 0 0 1-8 0"/>
-                 </svg>
-                 Product Details
-               </div>
-               <div class="header-cell">
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                   <polyline points="9,22 9,12 15,12 15,22"/>
-                 </svg>
-                 Store
-               </div>
-               <div class="header-cell">
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <line x1="12" y1="1" x2="12" y2="23"/>
-                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                 </svg>
-                 Price
-               </div>
-               <div class="header-cell">
-                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                   <circle cx="12" cy="12" r="3"/>
-                   <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2 2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                 </svg>
-                 Action
-               </div>
-             </div>
              ${parsed.products.map((product, index) => {
                const storeLogoUrl = getStoreLogoUrl(product.store);
                const isBestPrice = product.price === minPrice && parsed.products.length > 1;
@@ -2793,15 +3218,8 @@
                return `
                  <div class="table-row">
                    <div class="product-cell">
-                     <div class="product-image" id="product-img-${index}">
-                       ${product.productImageUrl ? 
-                         `<img src="${product.productImageUrl}" alt="${product.name}" onload="console.log('Product image loaded: ${product.name}')" onerror="handleProductImageError('product-img-${index}', '${product.name}')">` : 
-                         `<div class="product-placeholder">${getProductPlaceholder(product.name)}</div>`
-                       }
-                     </div>
                      <div class="product-details">
-                       <div class="product-name">${product.name}</div>
-                       ${product.description ? `<div class="product-description">${product.description}</div>` : ''}
+                       <div class="product-name">${product.name.length > 40 ? product.name.substring(0, 40) + '...' : product.name}</div>
                        ${product.availability ? 
                          `<div class="product-availability ${product.availability.toLowerCase().includes('stock') ? 'in-stock' : 'out-of-stock'}">
                             ${product.availability}
@@ -2899,25 +3317,18 @@
          }
        }
        
-       if (parsed.recommendation) {
-         console.log(`[FRONTEND] Showing recommendation: ${parsed.recommendation}`);
-         document.getElementById('recommendation-text').textContent = parsed.recommendation;
-         document.getElementById('recommendation-section').style.display = 'block';
-       } else {
-         console.log(`[FRONTEND] No recommendation found`);
-         document.getElementById('recommendation-section').style.display = 'none';
-       }
-
        // Display discounts/coupons if available
+       console.log(`[FRONTEND] Checking discounts - found ${parsed.discounts?.length || 0} discounts`);
        if (parsed.discounts && parsed.discounts.length > 0) {
-         console.log(`[FRONTEND] Showing ${parsed.discounts.length} discounts`);
+         console.log(`[FRONTEND] Showing ${parsed.discounts.length} discounts:`, parsed.discounts);
+         console.log(`[FRONTEND] First discount full description:`, parsed.discounts[0].description);
          const discountSection = document.getElementById('discount-section') || createDiscountSection();
          discountSection.style.display = 'block';
          discountSection.innerHTML = `
            <div class="panel glass-elevated">
              <div class="panel-header">
-               <div class="panel-title">💰 Available Discounts & Coupons</div>
-               <div class="panel-subtitle">Save even more with these offers</div>
+               <div class="panel-title">Available Discounts & Coupons</div>
+               <div class="panel-subtitle">Save even more with these offers!</div>
              </div>
              <div class="panel-content">
                <div class="discount-grid">
@@ -2925,15 +3336,15 @@
                    <div class="discount-card">
                      <div class="discount-header">
                        <div class="discount-icon">🎫</div>
-                       <div class="discount-title">${discount.title}</div>
+                       <div class="discount-title">${discount.title || 'Special Offer'}</div>
                      </div>
-                     <div class="discount-description">${discount.description}</div>
+                     <div class="discount-description">${discount.description || ''}</div>
                      <div class="discount-store">
-                       ${getStoreLogoUrl(discount.store) ? 
+                       ${discount.store && getStoreLogoUrl(discount.store) ? 
                          `<img src="${getStoreLogoUrl(discount.store)}" alt="${discount.store}" class="discount-store-logo" onerror="this.style.display='none'">` : 
                          ''
                        }
-                       <span class="discount-store-name">${discount.store}</span>
+                       <span class="discount-store-name">${discount.store || 'Various Stores'}</span>
                      </div>
                    </div>
                  `).join('')}
@@ -2942,11 +3353,14 @@
            </div>
          `;
        } else {
+         console.log(`[FRONTEND] No discounts to display`);
          const discountSection = document.getElementById('discount-section');
          if (discountSection) {
            discountSection.style.display = 'none';
          }
        }
+
+
        
        // Update global status
        const globalStatus = document.getElementById('global-status');
@@ -2982,9 +3396,7 @@
            </div>
          </div>
        `;
-       
-       // Hide recommendation section since parsing failed
-       document.getElementById('recommendation-section').style.display = 'none';
+
        
        // Update global status
        const globalStatus = document.getElementById('global-status');
