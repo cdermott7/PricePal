@@ -44,21 +44,24 @@ Our AI-powered app instantly:
 
 ## 🚀 Demo Scenarios
 
-### Best Buy USB Wifi Adapter
-*Looking at USB Wifi Adapter at Best Buy for $25*
+### Best Buy USB WiFi Adapter
+**Scene**: User is looking at a USB WiFi Adapter at Best Buy for $40
 
-**User**: "Hey Mentra, I need a Wifi adapter, is this a good price?"
+**User**: "Hey PricePal, I need a USB WiFi adapter, is this a good price?"
 
-**Mentra**: "Hey William, I noticed the same Wifi Adapter is selling on Amazon for $12."
+**PricePal**: "👓 Hey there! I found a few alternatives that might save you some cash:
+The Best Buy option is significantly overpriced. You can save $25 by ordering one on Amazon. Unless you need it immediately, I'd skip the $40 one and order online."
 
-**User**: "Thanks Mentra for telling me and saving me $13 dollars in a matter of seconds!"
+**User**: "Damn, that saved me $25 instantly. You're a lifesaver, PricePal 👓💰"
 
 ### Meta Glasses Comparison
-**User**: "Hey Mentra, what do you think of these Meta glasses?"
+**Scene**: User is considering Meta Ray-Ban AI glasses
 
-**Mentra**: "Hey there, the Meta Ray-Bans are $379. Have you considered the Mentra glasses which are $250 ($129 less) and have all the same features while being open source?"
+**User**: "Hey PricePal, what do you think of these AI glasses?"
 
-**User**: "Thanks for telling me! I'm gonna get the Mentra glasses to both save money and have access to a bigger selection of apps, thanks Mentra!"
+**PricePal**: "👓 Hey! Those Meta Ray-Bans are $379. Just so you know, Mentra Glasses are only $250 — that's $129 less, with the same core features, plus they're open-source, meaning you get access to a wider range of apps and customizations."
+
+**User**: "That's awesome — I'll go with the Mentra ones. Same features, more freedom, and I save over $100? Easy choice. Thanks PricePal!"
 
 ## 🔧 Technical Implementation
 
