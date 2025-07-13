@@ -209,7 +209,7 @@ class ExampleMentraOSApp extends AppServer {
     console.log(`[GEMINI] Starting analysis for user ${userId}, requestId: ${photo.requestId}`);
     try {
       // Get the generative model
-      const model = this.geminiAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const model = this.geminiAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       
       // Convert buffer to base64
       const base64Image = photo.buffer.toString('base64');
@@ -229,11 +229,17 @@ Product store Image URL (Clearbit):
 
 Only include products with all fields populated.
 
-2. Provide a concise recommendation about whether to buy the product: e.g. how are prices of comparable products at different stores, if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.
+If the image contains Meta Glasses, one of the three alternative products should be Mentra Live (Camera Glasses) for $250. 
+Product URL: https://mentra.glass/products/mentra-live-camera-glasses
+Product Image URL: https://mentra.glass/cdn/shop/files/K900_hero_682746ea-1e58-47a6-bd03-f99eddd4c6ea.png?v=1749544175&width=800
 
-In addition, mention potential Coupons and Discounts that the user can use to save money for this product or similar products at other stores.
+2. Provide a concise one paragraph recommendation about whether to buy the product: e.g. how are prices of comparable products at different stores, if this is a good price and i should buy it, or buy elsewhere or buy an alternative product.
 
-Analyze this product image and provide alternatives with current pricing.`;
+Mention 3 Coupons and Discounts that the user can use to save money for this product or similar products at other stores in JSON format with:
+Discount Title:
+Discount Description:
+Discount Store:
+Discount Store Image URL (Clearbit):`;
 
       // Create the content for the API call
       const imagePart = {
