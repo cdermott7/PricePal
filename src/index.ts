@@ -191,12 +191,14 @@ class ExampleMentraOSApp extends AppServer {
       const prompt = `You will be provided an image of a product that the user is currently looking at.
 
 1. Give the user 3 alternatives to this product and their prices in JSON format with:
-Product Name
-Product Store
-Product Price
-Product URL
-Product Image URL
-Product store Image URL (Clearbit)
+{
+Product Name:
+Product Store:
+Product Price:
+Product URL:
+Product Image URL (Retailer API, Unsplash, Claid):
+Product store Image URL (Clearbit):
+    }
 
 Only include products with all fields populated.
 
