@@ -181,7 +181,7 @@ PricePal was built for the Mentra Hackathon to showcase innovative applications 
 
 ## 👥 Team
 
-Built with ❤️ for the Mentra Hackathon by Cole Dermott
+Built with ❤️ for the Mentra Hackathon by Cole Dermott, Arsh Jain, and William Wang
 
 ## 📄 License
 
